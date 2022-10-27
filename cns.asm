@@ -50,13 +50,15 @@ printText:
     add     ax,     word[bp+10]
     shl     ax,     1
     mov     di,     ax
-    mov     si,     [bp+4]
-    mov     cx,     [bp+2]
-    mov     ah,     [bp+6]
+    mov     si,     [bp+6]
+    mov     cx,     [bp+4]
+    mov     ah,     0x07
     CLD
     nextChar:
-        lodsb
-        stosw
+        mov     al,     [si]
+        mov     [es:di],    ax
+        add     si,     1
+        add     di,     2
         loop    nextChar
     
     pop     cx
@@ -70,17 +72,27 @@ printText:
 setLocationOfText:
     mov     ax,     0   ;x co-ordinate
     push    ax
-    mov     ax,     0   ;y co-ordinate
+    mov     ax,     1   ;y co-ordinate
     push    ax
     mov     ax,     time
     push    ax
     push    word[strlenTime]
     call    printText
+
+    mov     ax,     90   ;x co-ordinate
+    push    ax
+    mov     ax,     1   ;y co-ordinate
+    push    ax
+    mov     ax,     score
+    push    ax
+    push    word[strlenScore]
+    call    printText
     ret
 start:
     call    clearScreen
+    ;call    blueScreen
     call    setLocationOfText
 
-
+   
 mov 	ax, 	0x4c00
 int 	21h
