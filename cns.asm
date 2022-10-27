@@ -1,9 +1,11 @@
 [org 0x0100]
 jmp	start
 score:      dw      'Score: '
+strlenScore:    db  7
 time:       dw      'Time: '
+strlenTime: db      6
 clearScreen:
-    push    ax
+    push    ax 
     push    es 
     push    di  
     push    si
