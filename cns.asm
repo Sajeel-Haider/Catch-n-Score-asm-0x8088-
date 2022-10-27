@@ -78,6 +78,15 @@ setLocationOfText:
     push    ax
     push    word[strlenTime]
     call    printText
+
+    mov     ax,     90   ;x co-ordinate
+    push    ax
+    mov     ax,     1   ;y co-ordinate
+    push    ax
+    mov     ax,     score
+    push    ax
+    push    word[strlenScore]
+    call    printText
     ret
 start:
     call    clearScreen
