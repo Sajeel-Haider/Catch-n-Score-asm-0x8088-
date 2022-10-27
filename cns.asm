@@ -1,9 +1,9 @@
 [org 0x0100]
 jmp	start
 score:      db      'Score: '
-strlenScore:    db  7
+strlenScore:    dw  7
 time:       db      'Time: '
-strlenTime: db      6
+strlenTime: dw      6
 
 clearScreen:
     push    ax 
@@ -12,7 +12,7 @@ clearScreen:
     push    si
     mov     ax,     0xb800
     mov     es,     ax
-    mov     ax,     0x0320
+    mov     ax,     0x7720
     xor     di,     di
     mov     cx,     2000
     CLD
@@ -47,7 +47,7 @@ printText:
     mov     es,     ax
     mov     al,     80
     mul     byte[bp+8]
-    add     ax,     byte[bp+10]
+    add     ax,     word[bp+10]
     shl     ax,     1
     mov     di,     ax
     mov     si,     [bp+4]
@@ -57,7 +57,7 @@ printText:
     nextChar:
         lodsb
         stosw
-        loop    newChar
+        loop    nextChar
     
     pop     cx
     pop     si
@@ -74,7 +74,7 @@ setLocationOfText:
     push    ax
     mov     ax,     time
     push    ax
-    push    byte[strlenTime]
+    push    word[strlenTime]
     call    printText
     ret
 start:
