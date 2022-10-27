@@ -2,6 +2,23 @@
 jmp	start
 score:      dw      'Score: '
 time:       dw      'Time: '
+clearScreen:
+    push    ax
+    push    es 
+    push    di  
+    push    si
+    mov     ax,     0xb800
+    mov     es,     ax
+    mov     ax,     0x0320
+    xor     di,     di
+    mov     cx,     2000
+    CLD
+    REP     stosw
+    pop     si
+    pop     di 
+    pop     es
+    pop     ax
+    ret
 blueScreen:
     mov     ah,     00h
     mov     al,     03h
@@ -18,6 +35,7 @@ printScore:
 
 start:
     call    blueScreen
+    
 
 
 mov 	ax, 	0x4c00
