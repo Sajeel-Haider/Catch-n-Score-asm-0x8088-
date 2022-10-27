@@ -93,6 +93,6 @@ start:
     ;call    blueScreen
     call    setLocationOfText
 
-
+   
 mov 	ax, 	0x4c00
 int 	21h
