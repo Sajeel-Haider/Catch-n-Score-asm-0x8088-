@@ -1,9 +1,10 @@
 [org 0x0100]
 jmp	start
-score:      dw      'Score: '
+score:      db      'Score: '
 strlenScore:    db  7
-time:       dw      'Time: '
+time:       db      'Time: '
 strlenTime: db      6
+
 clearScreen:
     push    ax 
     push    es 
@@ -33,11 +34,53 @@ blueScreen:
     int     10h
     ret
 
-printScore:
+printText:
+    push    bp
+    mov     bp,     sp
+    push    ax
+    push    es
+    push    di
+    push    si
+    push    cx
 
-start:
-    call    blueScreen
+    mov     ax,     0xb800
+    mov     es,     ax
+    mov     al,     80
+    mul     byte[bp+8]
+    add     ax,     byte[bp+10]
+    shl     ax,     1
+    mov     di,     ax
+    mov     si,     [bp+4]
+    mov     cx,     [bp+2]
+    mov     ah,     [bp+6]
+    CLD
+    nextChar:
+        lodsb
+        stosw
+        loop    newChar
     
+    pop     cx
+    pop     si
+    pop     di
+    pop     es
+    pop     ax
+    pop     bp
+
+    ret     8
+setLocationOfText:
+    mov     ax,     0   ;x co-ordinate
+    push    ax
+    mov     ax,     0   ;y co-ordinate
+    push    ax
+    mov     ax,     time
+    push    ax
+    push    byte[strlenTime]
+    call    printText
+    ret
+start:
+    ;call    blueScreen
+    call    clearScreen
+    call    setLocationOfText
 
 
 mov 	ax, 	0x4c00
