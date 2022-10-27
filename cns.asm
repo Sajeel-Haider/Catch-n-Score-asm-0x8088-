@@ -78,7 +78,6 @@ setLocationOfText:
     call    printText
     ret
 start:
-    ;call    blueScreen
     call    clearScreen
     call    setLocationOfText
 
