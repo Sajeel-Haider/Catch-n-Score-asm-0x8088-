@@ -4,7 +4,20 @@ score:      db      'Score: '
 strlenScore:    dw  7
 time:       db      'Time: '
 strlenTime: dw      6
-
+border:     db      '---------------------------------------------------------------------------------------------------'
+strlenBorder:   dw  80
+;
+welcomeMess:    db  'Welcome!'
+strlenWelcomeMess:  dw  8
+cnsMess:    db  'Catch & Carry'
+strlenCnsMess:  dw  13
+enterMess:  db  'Press Enter to Continue'
+strlenEnterMess:    dw  23
+instrucMess:    db  'Instructions'
+strlenInstrucMess:  dw  12
+instructions:   db  'blah blah'
+strlenInstructionsMess: dw  9
+;
 clearScreen:
     push    ax 
     push    es 
@@ -12,7 +25,7 @@ clearScreen:
     push    si
     mov     ax,     0xb800
     mov     es,     ax
-    mov     ax,     0x7720
+    mov     ax,     0x0720
     xor     di,     di
     mov     cx,     2000
     CLD
@@ -24,14 +37,13 @@ clearScreen:
     ret
 blueScreen:
     mov     ah,     00h
-    mov     al,     03h
+    mov     al,     13h
     int     10h
-    mov     ah,     09h
-    mov     bh,     00h
-    mov     al,     20h
-    mov     cx,     800h    
-    mov     bl,     3Fh
-    int     10h
+
+    mov	ah,	06h ;video mode
+    mov	bh,	00h ;set background
+    mov	bl,	03h ;color
+    int 10h
     ret
 
 printText:
@@ -70,29 +82,86 @@ printText:
 
     ret     8
 setLocationOfText:
-    mov     ax,     0   ;x co-ordinate
+    mov     ax,     00h   ;x co-ordinate
     push    ax
-    mov     ax,     1   ;y co-ordinate
+    mov     ax,     01h   ;y co-ordinate
     push    ax
     mov     ax,     time
     push    ax
     push    word[strlenTime]
     call    printText
 
-    mov     ax,     90   ;x co-ordinate
+    mov     ax,     40h   ;x co-ordinate
     push    ax
-    mov     ax,     1   ;y co-ordinate
+    mov     ax,     01h   ;y co-ordinate
     push    ax
     mov     ax,     score
     push    ax
     push    word[strlenScore]
     call    printText
+
+    mov     ax,     00h   ;x co-ordinate
+    push    ax
+    mov     ax,     02h   ;y co-ordinate
+    push    ax
+    mov     ax,     border
+    push    ax
+    push    word[strlenBorder]
+    call    printText
+    ret
+
+MainMenu:
+    mov     ax,     20h   ;x co-ordinate
+    push    ax
+    mov     ax,     02h   ;y co-ordinate
+    push    ax
+    mov     ax,     welcomeMess
+    push    ax
+    push    word[strlenWelcomeMess]
+    call    printText
+    
+    mov     ax,     19h   ;x co-ordinate
+    push    ax
+    mov     ax,     06h   ;y co-ordinate
+    push    ax
+    mov     ax,     cnsMess
+    push    ax
+    push    word[strlenCnsMess]
+    call    printText
+    
+    mov     ax,     19h   ;x co-ordinate
+    push    ax
+    mov     ax,     08h   ;y co-ordinate
+    push    ax
+    mov     ax,     enterMess
+    push    ax
+    push    word[strlenEnterMess]
+    call    printText
+    
+    mov     ax,     27h   ;x co-ordinate
+    push    ax
+    mov     ax,     0Bh   ;y co-ordinate
+    push    ax
+    mov     ax,     instrucMess
+    push    ax
+    push    word[strlenInstrucMess]
+    call    printText
+
+    mov     ax,     27h   ;x co-ordinate
+    push    ax
+    mov     ax,     0Eh   ;y co-ordinate
+    push    ax
+    mov     ax,     instructions
+    push    ax
+    push    word[strlenInstructionsMess]
+    call    printText
+    
     ret
 start:
     call    clearScreen
     ;call    blueScreen
-    call    setLocationOfText
-
+    ;call    setLocationOfText
+    call    MainMenu
    
 mov 	ax, 	0x4c00
 int 	21h
