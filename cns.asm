@@ -16,6 +16,8 @@ instrucMess:    db  'Instructions'
 strlenInstrucMess:  dw  12
 instructions:   db  'blah blah'
 strlenInstructionsMess: dw  9
+endMessage:     db  'Thank you for playing!'
+strlenEndMessage:   dw  22
 
 clearScreen:
     mov     ax,     00h   ;x co-ordinate
@@ -117,7 +119,7 @@ setLocationOfText:
     ret
 
 MainMenu:
-    mov     ax,     20h   ;x co-ordinate
+    mov     ax,     23h   ;x co-ordinate
     push    ax
     mov     ax,     02h   ;y co-ordinate
     push    ax
@@ -125,13 +127,13 @@ MainMenu:
     push    ax
     push    word[strlenWelcomeMess]
     xor     ax,     ax
-    mov     ah,     03h
+    mov     ah,     30h
     push    ax
     call    printText
     
-    mov     ax,     19h   ;x co-ordinate
+    mov     ax,     20h   ;x co-ordinate
     push    ax
-    mov     ax,     06h   ;y co-ordinate
+    mov     ax,     08h   ;y co-ordinate
     push    ax
     mov     ax,     cnsMess
     push    ax
@@ -141,39 +143,39 @@ MainMenu:
     push    ax
     call    printText
     
-    mov     ax,     19h   ;x co-ordinate
+    mov     ax,     1Bh   ;x co-ordinate
     push    ax
-    mov     ax,     08h   ;y co-ordinate
+    mov     ax,     0Ah   ;y co-ordinate
     push    ax
     mov     ax,     enterMess
     push    ax
     push    word[strlenEnterMess]
     xor     ax,     ax
-    mov     ah,     40h
+    mov     ah,     34h     ;color
     push    ax
     call    printText
     
-    mov     ax,     27h   ;x co-ordinate
+    mov     ax,     2Dh   ;x co-ordinate
     push    ax
-    mov     ax,     0Bh   ;y co-ordinate
+    mov     ax,     0Dh   ;y co-ordinate
     push    ax
     mov     ax,     instrucMess
     push    ax
     push    word[strlenInstrucMess]
     xor     ax,     ax
-    mov     ah,     07h
+    mov     ah,     0xC0
     push    ax
     call    printText
 
-    mov     ax,     27h   ;x co-ordinate
+    mov     ax,     2Dh   ;x co-ordinate
     push    ax
-    mov     ax,     0Eh   ;y co-ordinate
+    mov     ax,     0Fh   ;y co-ordinate
     push    ax
     mov     ax,     instructions
     push    ax
     push    word[strlenInstructionsMess]
     xor     ax,     ax
-    mov     ah,     07h
+    mov     ah,     30h
     push    ax
     call    printText
     
@@ -213,26 +215,60 @@ printDesignShapes:
 
     ret     10
 designShapes:
-    mov     ax,     0Fh   ;x co-ordinate
+    mov     ax,     00h   ;x co-ordinate
     push    ax
-    mov     ax,     02h   ;y co-ordinate
-    push    ax
-    xor     ax,     ax
-    mov     ah,     55h  ;color of the space
+    mov     ax,     05h   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     al,     20h
+    mov     ah,     0xB4  ;color of the space
     push    ax
-    mov     cx,     05h
+    xor     ax,     ax
+    mov     al,     7Eh
+    push    ax
+    mov     cx,     50h
     push    cx
     call    printDesignShapes
     
     ret
-start:
+
+EndPage:
+    mov     ax,     1Ch   ;x co-ordinate
+    push    ax
+    mov     ax,     08h   ;y co-ordinate
+    push    ax
+    mov     ax,     endMessage
+    push    ax
+    push    word[strlenEndMessage]
+    xor     ax,     ax
+    mov     ah,     30h
+    push    ax
+    call    printText
+
+    mov     ax,     20h   ;x co-ordinate
+    push    ax
+    mov     ax,     0Dh   ;y co-ordinate
+    push    ax
+    mov     ax,     score
+    push    ax
+    push    word[strlenScore]
+    xor     ax,     ax
+    mov     ah,     0x34
+    push    ax
+    call    printText
+    ret
+loadMainMenu:
     call    clearScreen
-    ;call    blueScreen
-    ;call    setLocationOfText
     call    MainMenu
     call    designShapes
+    ret
+loadEndPage:
+    call    EndPage
+    ret
+start:
+    ;call    loadMainMenu
+    ;call    loadEndPage
+
+  
+    
 mov 	ax, 	0x4c00
 int 	21h
