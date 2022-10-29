@@ -6,7 +6,6 @@ time:       db      'Time: '
 strlenTime: dw      6
 border:     db      '---------------------------------------------------------------------------------------------------'
 strlenBorder:   dw  80
-;
 welcomeMess:    db  'Welcome!'
 strlenWelcomeMess:  dw  8
 cnsMess:    db  'Catch & Carry'
@@ -17,23 +16,21 @@ instrucMess:    db  'Instructions'
 strlenInstrucMess:  dw  12
 instructions:   db  'blah blah'
 strlenInstructionsMess: dw  9
-;
+
 clearScreen:
-    push    ax 
-    push    es 
-    push    di  
-    push    si
-    mov     ax,     0xb800
-    mov     es,     ax
-    mov     ax,     0x0720
-    xor     di,     di
+    mov     ax,     00h   ;x co-ordinate
+    push    ax
+    mov     ax,     00h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xBB  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     20h
+    push    ax
     mov     cx,     2000
-    CLD
-    REP     stosw
-    pop     si
-    pop     di 
-    pop     es
-    pop     ax
+    push    cx
+    call    printDesignShapes
     ret
 blueScreen:
     mov     ah,     00h
@@ -182,20 +179,60 @@ MainMenu:
     
     ret
 printDesignShapes:
+    push    bp
+    mov     bp,     sp
+    push    ax
+    push    es
+    push    di
+    push    si
+    push    cx
 
+    mov     ax,     0xb800
+    mov     es,     ax
+    mov     al,     80
+    mul     byte[bp+10]
+    add     ax,     word[bp+12]
+    shl     ax,     1
+    mov     di,     ax      ;position
+    
+    mov     cx,     [bp+4]      ;size
+    xor     ax,     ax
+    mov     ax,     [bp+8]      ;color   (there was prob here idk why but cant use ah)
+    mov     al,     [bp+6]      ;space
+    
+
+    CLD
+    REP     STOSW
+
+    pop     cx
+    pop     si
+    pop     di
+    pop     es
+    pop     ax
+    pop     bp
+
+    ret     10
 designShapes:
-    mov     ax,     20h   ;x co-ordinate
+    mov     ax,     0Fh   ;x co-ordinate
     push    ax
     mov     ax,     02h   ;y co-ordinate
     push    ax
-    mov     ax,     0x0720  ;color of the space
+    xor     ax,     ax
+    mov     ah,     55h  ;color of the space
     push    ax
+    xor     ax,     ax
+    mov     al,     20h
+    push    ax
+    mov     cx,     05h
+    push    cx
     call    printDesignShapes
+    
+    ret
 start:
     call    clearScreen
     ;call    blueScreen
     ;call    setLocationOfText
     call    MainMenu
-   
+    call    designShapes
 mov 	ax, 	0x4c00
 int 	21h
