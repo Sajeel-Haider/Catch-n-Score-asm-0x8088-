@@ -58,13 +58,13 @@ printText:
     mov     ax,     0xb800
     mov     es,     ax
     mov     al,     80
-    mul     byte[bp+8]
-    add     ax,     word[bp+10]
+    mul     byte[bp+10]
+    add     ax,     word[bp+12]
     shl     ax,     1
     mov     di,     ax
-    mov     si,     [bp+6]
-    mov     cx,     [bp+4]
-    mov     ah,     0x07
+    mov     si,     [bp+8]
+    mov     cx,     [bp+6]
+    mov     ax,     [bp+4]
     CLD
     nextChar:
         mov     al,     [si]
@@ -80,15 +80,18 @@ printText:
     pop     ax
     pop     bp
 
-    ret     8
+    ret     10
 setLocationOfText:
     mov     ax,     00h   ;x co-ordinate
     push    ax
     mov     ax,     01h   ;y co-ordinate
     push    ax
-    mov     ax,     time
+    mov     ax,     time    ;points to string
     push    ax
     push    word[strlenTime]
+    xor     ax,     ax
+    mov     ah,     07h
+    push    ax
     call    printText
 
     mov     ax,     40h   ;x co-ordinate
@@ -98,6 +101,9 @@ setLocationOfText:
     mov     ax,     score
     push    ax
     push    word[strlenScore]
+    xor     ax,     ax
+    mov     ah,     07h
+    push    ax
     call    printText
 
     mov     ax,     00h   ;x co-ordinate
@@ -107,6 +113,9 @@ setLocationOfText:
     mov     ax,     border
     push    ax
     push    word[strlenBorder]
+    xor     ax,     ax
+    mov     ah,     07h
+    push    ax
     call    printText
     ret
 
@@ -118,6 +127,9 @@ MainMenu:
     mov     ax,     welcomeMess
     push    ax
     push    word[strlenWelcomeMess]
+    xor     ax,     ax
+    mov     ah,     03h
+    push    ax
     call    printText
     
     mov     ax,     19h   ;x co-ordinate
@@ -127,6 +139,9 @@ MainMenu:
     mov     ax,     cnsMess
     push    ax
     push    word[strlenCnsMess]
+    xor     ax,     ax
+    mov     ah,     20h
+    push    ax
     call    printText
     
     mov     ax,     19h   ;x co-ordinate
@@ -136,6 +151,9 @@ MainMenu:
     mov     ax,     enterMess
     push    ax
     push    word[strlenEnterMess]
+    xor     ax,     ax
+    mov     ah,     40h
+    push    ax
     call    printText
     
     mov     ax,     27h   ;x co-ordinate
@@ -145,6 +163,9 @@ MainMenu:
     mov     ax,     instrucMess
     push    ax
     push    word[strlenInstrucMess]
+    xor     ax,     ax
+    mov     ah,     07h
+    push    ax
     call    printText
 
     mov     ax,     27h   ;x co-ordinate
@@ -154,9 +175,22 @@ MainMenu:
     mov     ax,     instructions
     push    ax
     push    word[strlenInstructionsMess]
+    xor     ax,     ax
+    mov     ah,     07h
+    push    ax
     call    printText
     
     ret
+printDesignShapes:
+
+designShapes:
+    mov     ax,     20h   ;x co-ordinate
+    push    ax
+    mov     ax,     02h   ;y co-ordinate
+    push    ax
+    mov     ax,     0x0720  ;color of the space
+    push    ax
+    call    printDesignShapes
 start:
     call    clearScreen
     ;call    blueScreen
