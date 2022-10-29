@@ -181,6 +181,16 @@ MainMenu:
     call    printText
     
     ret
+printDesignShapes:
+
+designShapes:
+    mov     ax,     20h   ;x co-ordinate
+    push    ax
+    mov     ax,     02h   ;y co-ordinate
+    push    ax
+    mov     ax,     0x0720  ;color of the space
+    push    ax
+    call    printDesignShapes
 start:
     call    clearScreen
     ;call    blueScreen
