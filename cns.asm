@@ -4,9 +4,6 @@ score:      db      'Score: '
 strlenScore:    dw  7
 time:       db      'Time: '
 strlenTime: dw      6
-border:     db      '---------------------------------------------------------------------------------------------------'
-strlenBorder:   dw  80
-;
 welcomeMess:    db  'Welcome!'
 strlenWelcomeMess:  dw  8
 cnsMess:    db  'Catch & Carry'
@@ -17,23 +14,23 @@ instrucMess:    db  'Instructions'
 strlenInstrucMess:  dw  12
 instructions:   db  'blah blah'
 strlenInstructionsMess: dw  9
-;
+endMessage:     db  'Thank you for playing!'
+strlenEndMessage:   dw  22
+
 clearScreen:
-    push    ax 
-    push    es 
-    push    di  
-    push    si
-    mov     ax,     0xb800
-    mov     es,     ax
-    mov     ax,     0x0720
-    xor     di,     di
+    mov     ax,     00h   ;x co-ordinate
+    push    ax
+    mov     ax,     00h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xBB  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     20h
+    push    ax
     mov     cx,     2000
-    CLD
-    REP     stosw
-    pop     si
-    pop     di 
-    pop     es
-    pop     ax
+    push    cx
+    call    printDesignShapes
     ret
 blueScreen:
     mov     ah,     00h
@@ -81,7 +78,7 @@ printText:
     pop     bp
 
     ret     10
-setLocationOfText:
+renderScoreNTime:
     mov     ax,     00h   ;x co-ordinate
     push    ax
     mov     ax,     01h   ;y co-ordinate
@@ -106,21 +103,53 @@ setLocationOfText:
     push    ax
     call    printText
 
-    mov     ax,     00h   ;x co-ordinate
-    push    ax
-    mov     ax,     02h   ;y co-ordinate
-    push    ax
-    mov     ax,     border
-    push    ax
-    push    word[strlenBorder]
-    xor     ax,     ax
-    mov     ah,     07h
-    push    ax
-    call    printText
     ret
 
+renderCatcher:
+    mov     ax,     22h   ;x co-ordinate
+    push    ax
+    mov     ax,     17h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB0  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     5Bh
+    push    ax
+    mov     cx,     01h
+    push    cx
+    call    printDesignShapes
+
+    mov     ax,     29h   ;x co-ordinate
+    push    ax
+    mov     ax,     17h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB0  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     5Dh
+    push    ax
+    mov     cx,     01h
+    push    cx
+    call    printDesignShapes
+
+    mov     ax,     22h   ;x co-ordinate
+    push    ax
+    mov     ax,     18h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB0  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     7Eh
+    push    ax
+    mov     cx,     08h
+    push    cx
+    call    printDesignShapes
+    ret
 MainMenu:
-    mov     ax,     20h   ;x co-ordinate
+    mov     ax,     23h   ;x co-ordinate
     push    ax
     mov     ax,     02h   ;y co-ordinate
     push    ax
@@ -128,13 +157,13 @@ MainMenu:
     push    ax
     push    word[strlenWelcomeMess]
     xor     ax,     ax
-    mov     ah,     03h
+    mov     ah,     30h
     push    ax
     call    printText
     
-    mov     ax,     19h   ;x co-ordinate
+    mov     ax,     20h   ;x co-ordinate
     push    ax
-    mov     ax,     06h   ;y co-ordinate
+    mov     ax,     08h   ;y co-ordinate
     push    ax
     mov     ax,     cnsMess
     push    ax
@@ -144,58 +173,139 @@ MainMenu:
     push    ax
     call    printText
     
-    mov     ax,     19h   ;x co-ordinate
+    mov     ax,     1Bh   ;x co-ordinate
     push    ax
-    mov     ax,     08h   ;y co-ordinate
+    mov     ax,     0Ah   ;y co-ordinate
     push    ax
     mov     ax,     enterMess
     push    ax
     push    word[strlenEnterMess]
     xor     ax,     ax
-    mov     ah,     40h
+    mov     ah,     34h     ;color
     push    ax
     call    printText
     
-    mov     ax,     27h   ;x co-ordinate
+    mov     ax,     2Dh   ;x co-ordinate
     push    ax
-    mov     ax,     0Bh   ;y co-ordinate
+    mov     ax,     0Dh   ;y co-ordinate
     push    ax
     mov     ax,     instrucMess
     push    ax
     push    word[strlenInstrucMess]
     xor     ax,     ax
-    mov     ah,     07h
+    mov     ah,     0xC0
     push    ax
     call    printText
 
-    mov     ax,     27h   ;x co-ordinate
+    mov     ax,     2Dh   ;x co-ordinate
     push    ax
-    mov     ax,     0Eh   ;y co-ordinate
+    mov     ax,     0Fh   ;y co-ordinate
     push    ax
     mov     ax,     instructions
     push    ax
     push    word[strlenInstructionsMess]
     xor     ax,     ax
-    mov     ah,     07h
+    mov     ah,     30h
     push    ax
     call    printText
     
     ret
 printDesignShapes:
+    push    bp
+    mov     bp,     sp
+    push    ax
+    push    es
+    push    di
+    push    si
+    push    cx
 
+    mov     ax,     0xb800
+    mov     es,     ax
+    mov     al,     80
+    mul     byte[bp+10]
+    add     ax,     word[bp+12]
+    shl     ax,     1
+    mov     di,     ax      ;position
+    
+    mov     cx,     [bp+4]      ;size
+    xor     ax,     ax
+    mov     ax,     [bp+8]      ;color   (there was prob here idk why but cant use ah)
+    mov     al,     [bp+6]      ;space
+    
+
+    CLD
+    REP     STOSW
+
+    pop     cx
+    pop     si
+    pop     di
+    pop     es
+    pop     ax
+    pop     bp
+
+    ret     10
 designShapes:
+    mov     ax,     00h   ;x co-ordinate
+    push    ax
+    mov     ax,     05h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB4  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     7Eh
+    push    ax
+    mov     cx,     50h
+    push    cx
+    call    printDesignShapes
+    
+    ret
+
+EndPage:
+    mov     ax,     1Ch   ;x co-ordinate
+    push    ax
+    mov     ax,     08h   ;y co-ordinate
+    push    ax
+    mov     ax,     endMessage
+    push    ax
+    push    word[strlenEndMessage]
+    xor     ax,     ax
+    mov     ah,     30h
+    push    ax
+    call    printText
+
     mov     ax,     20h   ;x co-ordinate
     push    ax
-    mov     ax,     02h   ;y co-ordinate
+    mov     ax,     0Dh   ;y co-ordinate
     push    ax
-    mov     ax,     0x0720  ;color of the space
+    mov     ax,     score
     push    ax
-    call    printDesignShapes
-start:
+    push    word[strlenScore]
+    xor     ax,     ax
+    mov     ah,     0x34
+    push    ax
+    call    printText
+    ret
+loadMainMenu:
     call    clearScreen
-    ;call    blueScreen
-    ;call    setLocationOfText
     call    MainMenu
-   
+    call    designShapes
+    ret
+loadEndPage:
+    call    clearScreen
+    call    EndPage
+    ret
+loadGamePage:
+    call    clearScreen
+    call    renderScoreNTime
+    call    renderCatcher
+    ret
+
+start:
+    ;call    loadMainMenu
+    ;call    loadEndPage
+    ;call    loadGamePage
+  
+    
 mov 	ax, 	0x4c00
 int 	21h
