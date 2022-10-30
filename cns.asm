@@ -4,8 +4,6 @@ score:      db      'Score: '
 strlenScore:    dw  7
 time:       db      'Time: '
 strlenTime: dw      6
-border:     db      '---------------------------------------------------------------------------------------------------'
-strlenBorder:   dw  80
 welcomeMess:    db  'Welcome!'
 strlenWelcomeMess:  dw  8
 cnsMess:    db  'Catch & Carry'
@@ -80,7 +78,7 @@ printText:
     pop     bp
 
     ret     10
-setLocationOfText:
+renderScoreNTime:
     mov     ax,     00h   ;x co-ordinate
     push    ax
     mov     ax,     01h   ;y co-ordinate
@@ -105,19 +103,51 @@ setLocationOfText:
     push    ax
     call    printText
 
-    mov     ax,     00h   ;x co-ordinate
-    push    ax
-    mov     ax,     02h   ;y co-ordinate
-    push    ax
-    mov     ax,     border
-    push    ax
-    push    word[strlenBorder]
-    xor     ax,     ax
-    mov     ah,     07h
-    push    ax
-    call    printText
     ret
 
+renderCatcher:
+    mov     ax,     22h   ;x co-ordinate
+    push    ax
+    mov     ax,     17h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB0  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     5Bh
+    push    ax
+    mov     cx,     01h
+    push    cx
+    call    printDesignShapes
+
+    mov     ax,     29h   ;x co-ordinate
+    push    ax
+    mov     ax,     17h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB0  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     5Dh
+    push    ax
+    mov     cx,     01h
+    push    cx
+    call    printDesignShapes
+
+    mov     ax,     22h   ;x co-ordinate
+    push    ax
+    mov     ax,     18h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB0  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     7Eh
+    push    ax
+    mov     cx,     08h
+    push    cx
+    call    printDesignShapes
+    ret
 MainMenu:
     mov     ax,     23h   ;x co-ordinate
     push    ax
@@ -262,12 +292,19 @@ loadMainMenu:
     call    designShapes
     ret
 loadEndPage:
+    call    clearScreen
     call    EndPage
     ret
+loadGamePage:
+    call    clearScreen
+    call    renderScoreNTime
+    call    renderCatcher
+    ret
+
 start:
     ;call    loadMainMenu
     ;call    loadEndPage
-
+    ;call    loadGamePage
   
     
 mov 	ax, 	0x4c00
