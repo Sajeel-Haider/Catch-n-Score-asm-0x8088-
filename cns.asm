@@ -15,7 +15,8 @@ strlenInstrucMess:  dw  12
 instructions:   db  'blah blah'
 strlenInstructionsMess: dw  9
 endMessage:     db  'Thank you for playing!'
-strlenEndMessage:   dw  22
+strlenEndMessage:   dw  25
+
 
 clearScreen:
     mov     ax,     00h   ;x co-ordinate
@@ -210,6 +211,51 @@ MainMenu:
     call    printText
     
     ret
+
+holdMyTnt: 
+
+    push    di
+    push    es
+    push    cx    
+
+    mov     cx,80
+    mov     ah,0
+    mul     cx
+    mov     bh,0
+    add     ax,bx
+    shl     ax,1
+    mov     di,ax           ; selecting location on screen
+    mov     ax,0xB800
+    mov     es,ax
+    CLD
+    mov     ax,0x34C9       ; just printing shape afterwards
+    STOSw 
+    mov     ax,0x34CD
+    STOSw 
+    mov     ax,0x34BB
+    STOSw 
+    add     di,154
+    mov     ax,0x34C8
+    STOSw 
+    mov     ax,0x34CB
+    STOSw 
+    mov     ax,0x34BC
+    STOSw 
+    add     di,154
+    mov     ax,0x34CD
+    STOSw
+    mov     ax,0x34CA
+    STOSw 
+    mov     ax,0x34CD
+    STOSw
+
+    pop     cx
+    pop     es
+    pop     di
+
+ret 
+
+
 printDesignShapes:
     push    bp
     mov     bp,     sp
@@ -299,12 +345,35 @@ loadGamePage:
     call    clearScreen
     call    renderScoreNTime
     call    renderCatcher
-    ret
+    ; maybe a loop to call it again and again
+    mov     al,4 ; row can be randomly selected using random function
+    mov     bl,4 ; column selected 
+    call    holdMyTnt
+    
+    mov     al,7 ; row can be randomly selected using random function
+    mov     bl,140 ; column selected 
+    call    holdMyTnt
 
+    mov     al,21 ; row can be randomly selected using random function
+    mov     bl,60 ; column selected 
+    call    holdMyTnt
+
+    ; maybe end the loop here
+
+    ret
+waitAWhile
+    mov     cx, 2Dh
+    mov     dx, 0xC0C6
+    mov     al,0
+    mov     ah, 86h
+    int     15h
+ret
 start:
-    ;call    loadMainMenu
-    ;call    loadEndPage
-    ;call    loadGamePage
+    call    loadMainMenu
+    call    waitAWhile
+    call    loadEndPage
+    call    waitAWhile
+    call    loadGamePage
   
     
 mov 	ax, 	0x4c00
