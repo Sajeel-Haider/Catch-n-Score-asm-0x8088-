@@ -366,7 +366,7 @@ holdMyTnt:
     pop     es
     pop     di
 
-ret 
+    ret 
 
 maxPointShape:
     
@@ -663,7 +663,8 @@ start:
     call    loadEndPage
     call    waitAWhile
     call    loadGamePage
-  
+    ;hello bitches
+    ;im done with this shit bro
     
 mov 	ax, 	0x4c00
 int 	21h
