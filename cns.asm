@@ -408,7 +408,8 @@ maxPointShape:
 
     pop     cx
     pop     es
-    pop     diret 
+    pop     di
+    ret 
 
 midPointShape:
     
@@ -450,7 +451,8 @@ midPointShape:
 
     pop     cx
     pop     es
-    pop     diret 
+    pop     di
+    ret 
 
 minPointShape:
     
@@ -492,7 +494,8 @@ minPointShape:
 
     pop     cx
     pop     es
-    pop     diret 
+    pop     di
+    ret 
 printDesignShapes:
     push    bp
     mov     bp,     sp
@@ -651,11 +654,9 @@ waitAWhile
 start:
     call    loadMainMenu
     call    waitAWhile
-    call    loadEndPage
-    call    waitAWhile
     call    loadGamePage
-    ;hello bitches
-    ;im done with this shit bro
+    call    waitAWhile
+    call    loadEndPage
     
 mov 	ax, 	0x4c00
 int 	21h
