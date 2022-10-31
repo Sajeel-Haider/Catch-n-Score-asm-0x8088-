@@ -374,7 +374,7 @@ start:
     call    loadEndPage
     call    waitAWhile
     call    loadGamePage
-  
+    ;hello bitches
     
 mov 	ax, 	0x4c00
 int 	21h
