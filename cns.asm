@@ -253,7 +253,7 @@ holdMyTnt:
     pop     es
     pop     di
 
-ret 
+    ret 
 
 
 printDesignShapes:
@@ -367,7 +367,7 @@ waitAWhile
     mov     al,0
     mov     ah, 86h
     int     15h
-ret
+    ret
 start:
     call    loadMainMenu
     call    waitAWhile
