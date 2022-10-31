@@ -408,9 +408,7 @@ maxPointShape:
 
     pop     cx
     pop     es
-    pop     di
-
-ret 
+    pop     diret 
 
 midPointShape:
     
@@ -452,9 +450,7 @@ midPointShape:
 
     pop     cx
     pop     es
-    pop     di
-
-ret 
+    pop     diret 
 
 minPointShape:
     
@@ -496,11 +492,7 @@ minPointShape:
 
     pop     cx
     pop     es
-    pop     di
-
-ret 
-
-
+    pop     diret 
 printDesignShapes:
     push    bp
     mov     bp,     sp
@@ -655,8 +647,7 @@ waitAWhile
     pop     ax
     pop     dx
     pop     cx
-
-ret
+    ret
 start:
     call    loadMainMenu
     call    waitAWhile
