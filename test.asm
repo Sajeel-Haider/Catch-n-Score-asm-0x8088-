@@ -1,119 +1,125 @@
-[org 0x0100]
+﻿[org 0x0100]
 jmp start
-message:	db	'Welcome'
-strlenMessage: 	dw	'7'
 
-holdMyTnt: 
+text1: db	' ██████╗ █████╗ ████████╗ ██████╗██╗  ██╗      ███╗   ██╗      ███████╗ ██████╗ ██████╗ ██████╗ ███████╗',0
+text2: db	'██╔════╝██╔══██╗╚══██╔══╝██╔════╝██║  ██║      ████╗  ██║      ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝',0
+text3: db	'██║     ███████║   ██║   ██║     ███████║█████╗██╔██╗ ██║█████╗███████╗██║     ██║   ██║██████╔╝█████╗',0
+text4: db	'██║     ██╔══██║   ██║   ██║     ██╔══██║╚════╝██║╚██╗██║╚════╝╚════██║██║     ██║   ██║██╔══██╗██╔══╝',0
+text5: db	'╚██████╗██║  ██║   ██║   ╚██████╗██║  ██║      ██║ ╚████║      ███████║╚██████╗╚██████╔╝██║  ██║███████╗',0
+text6: db	' ╚═════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝╚═╝  ╚═╝      ╚═╝  ╚═══╝      ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝',0
 
-    mov ax,0xB800
-    mov es,ax
-    mov di,650
-    CLD
-    mov ax,0xB4C9
-    STOSw 
-    mov ax,0xB4CD
-    STOSw 
-    mov ax,0xB4BB
-    STOSw 
-    add di,154
-    mov ax,0xB4C8
-    STOSw 
-    mov ax,0xB4CB
-    STOSw 
-    mov ax,0xB4BC
-    STOSw 
-    add di,154
-    mov ax,0xB4CD
-    STOSw
-    mov ax,0xB4CA
-    STOSw 
-    mov ax,0xB4CD
-    STOSw
+clrscr: 
+push es 
+ push ax 
+ push cx 
+ push di 
+ mov ax, 0xb800 
+ mov es, ax 
+xor di, di 
+ mov ax, 0x0720  
+ mov cx, 2000  
+ cld 
+ rep stosw 
+ pop di
+pop cx 
+ pop ax 
+ pop es 
+ ret 
+printstr:
+ push bp 
+ mov bp, sp 
+ push es 
+ push ax 
+ push cx 
+ push si 
+ push di 
+ push ds 
+ pop es ; load ds in es 
+ mov di, [bp+4] ; point di to string 
+ mov cx, 0xffff ; load maximum number in cx 
+ xor al, al ; load a zero in al 
+ repne scasb ; find zero in the string 
+ mov ax, 0xffff ; load maximum number in ax 
+ sub ax, cx ; find change in cx 
+ dec ax ; exclude null from length 
+ jz exit ; no printing if string is empty
+ mov cx, ax ; load string length in cx 
+ mov ax, 0xb800 
+ mov es, ax ; point es to video base 
+ mov al, 80 ; load al with columns per row 
+ mul byte [bp+8] ; multiply with y position 
+ add ax, [bp+10] ; add x position 
+ shl ax, 1 ; turn into byte offset 
+ mov di,ax ; point di to required location 
+ mov si, [bp+4] ; point si to string 
+ mov ah, [bp+6] ; load attribute in ah 
+ cld ; auto increment mode 
+nextchar: lodsb ; load next char in al 
+ stosw ; print char/attribute pair 
+ loop nextchar ; repeat for the whole string 
+exit: pop di 
+ pop si 
+ pop cx 
+ pop ax 
+ pop es 
+ pop bp 
+ ret 8 
+start: 
+call clrscr
+ mov ax, 30 
+ push ax
+ mov ax, 13
+ push ax 
+ mov ax, 1 
+ push ax 
+ mov ax, text1
+ push ax 
+ call printstr 
+mov ax, 30 
+ push ax 
+ mov ax, 14
+ push ax
+ mov ax, 1 
+ push ax 
+ mov ax, text2
+ push ax 
+ call printstr 
+mov ax, 30 
+ push ax 
+ mov ax, 15
+ push ax
+ mov ax, 1 
+ push ax 
+ mov ax, text3
+ push ax  
+ call printstr 
+mov ax, 30 
+ push ax 
+ mov ax, 16
+ push ax 
+ mov ax, 1
+ push ax 
+ mov ax, text4
+ push ax
+ call printstr 
+mov ax, 30 
+ push ax 
+ mov ax, 17
+ push ax 
+ mov ax, 1 
+ push ax 
+ mov ax, text5
+ push ax 
+ call printstr 
+mov ax, 30 
+ push ax
+ mov ax, 18
+ push ax 
+ mov ax, 1 
+ push ax 
+ mov ax, text6
+ push ax 
+ call printstr 
 
-
-
-ret 
-
-clearScreen:
-    mov     ax,     00h   ;x co-ordinate
-    push    ax
-    mov     ax,     00h   ;y co-ordinate
-    push    ax
-    xor     ax,     ax
-    mov     ah,     0xBB  ;color of the space
-    push    ax
-    xor     ax,     ax
-    mov     al,     20h
-    push    ax
-    mov     cx,     2000
-    push    cx
-    call    printDesignShapes
-    ret
-printDesignShapes:
-    push    bp
-    mov     bp,     sp
-    push    ax
-    push    es
-    push    di
-    push    si
-    push    cx
-
-    mov     ax,     0xb800
-    mov     es,     ax
-    mov     al,     80
-    mul     byte[bp+10]
-    add     ax,     word[bp+12]
-    shl     ax,     1
-    mov     di,     ax      ;position
-    
-    mov     cx,     [bp+4]      ;size
-    xor     ax,     ax
-    mov     ax,     [bp+8]      ;color   (there was prob here idk why but cant use ah)
-    mov     al,     [bp+6]      ;space
-    
-
-    CLD
-    REP     STOSW
-
-    pop     cx
-    pop     si
-    pop     di
-    pop     es
-    pop     ax
-    pop     bp
-
-    ret     10
-
-printText:
-    	mov     ah,     13h
-	mov	al,	1
-	mov	bh,	0
-	mov	bl,	7
-	mov	dx,	0x0A03
-	mov	cx,	7
-	push	cs
-	pop	es
-	mov	bp,	message
-
-    	int     10h
-    	ret
-blueScreen:
-   	mov ah, 2   ; use function 2 - go to x,y
-	mov bh, 0   ; display page 0
-	mov dh, 0   ; y coordinate to move cursor to
-	mov dl, 0   ; x coordinate to move cursor to
-	int 10h ; go!
-
-	mov ah, 0Ah
-	mov cx, 1000h
-	mov al, 20h
-	mov bl, 17h ;color
-	int 10h
-start:
-	;call	blueScreen
-	;call	printText
-     call clearScreen
-	call holdMyTnt
-
-mov	ax,	0x4c00
-int 21h
+ mov ax, 0x4c00 
+ int 0x21 
