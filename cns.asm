@@ -1,36 +1,27 @@
 [org 0x0100]
 jmp	start
-score:      db      'Score: '
-strlenScore:    dw  7
-time:       db      'Time: '
-strlenTime: dw      6
-welcomeMess:    db  'W E L C O M E !'
-strlenWelcomeMess:  dw  15
-cnsMess:    db  'C A T C H  &  C A R R Y'
-strlenCnsMess:  dw  23
-enterMess:  db  'Press Enter to Continue'
-strlenEnterMess:    dw  23
-instrucMess:    db  'Instructions :'
-strlenInstrucMess:  dw  14
-endMessage:     db  'Thank you for playing!'
-strlenEndMessage:   dw  25
-deadMsg:     db  'Y O U  D I E '
-deadMsgLength:   dw  13
-maxPointMsg:     db  '15 Points '
-maxMsgLength:   dw  10
-midPointMsg:     db  '10 Points '
-midMsgLength:   dw  10
-minPointMsg:     db  '5 Points'
-minMsgLength:   dw  8
-pointMsg:     db  '>'
-pointMsgLength:   dw  1
+score:      db      'Score: ',0
+time:       db      'Time: ',0
+welcomeMess:    db  'W E L C O M E !',0
+cnsMess:    db  'C A T C H  &  C A R R Y',0
+enterMess:  db  'Press Enter to Continue',0
+instrucMess:    db  'Instructions :',0
+endMessage:     db  'Thank you for playing!',0
+deadMsg:     db  'Y O U  D I E ',0
+maxPointMsg:     db  '15 Points ',0
+midPointMsg:     db  '10 Points ',0
+minPointMsg:     db  '5 Points',0
+pointMsg:     db  '>',0
 
-text1: db' _____       _       _                      _____                    ',0;
-text2: db'/  __ \     | |     | |                    /  ___|                   ',0;
-text3: db'| /  \/ __ _| |_ ___| |__ ______ _ __ _____\ `--.  ___ ___  _ __ ___ ',0;
-text4: db'| |    / _` | __/ __| ',0x27,'_ |______| ',0x27,'_ |______`--. \/ __/ _ \| ',0x27,'__/ _ \',0;
-text5: db'| \__/| (_| | || (__| | | |     | | | |    /\__/ | (_| (_) | | |  __/',0;
-text6: db' \____/\__,_|\__\___|_| |_|     |_| |_|    \____/ \___\___/|_|  \___|',0;
+text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
+text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
+text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
+text4: db' /  /  |    ||_| |_/  /  |  _  ||  ||  |  ||  |\__  |/  /  |  O  ||    / |    _]',0
+text5: db'/   \_ |  _ |  | |/   \_ |  |  ||__||  |  ||__|/  \ /   \_ |     ||    \ |   [_ ',0
+text6: db'\     ||  | |  | |\     ||  |  |    |  |  |    \    \     ||     ||  .  \|     |',0
+text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|\_||_____|',0
+                                                                                        
+
 
 
 
@@ -61,63 +52,67 @@ blueScreen:
     ret
 
 printText:
-    push    bp
-    mov     bp,     sp
-    push    ax
-    push    es
-    push    di
-    push    si
-    push    cx
-
-    mov     ax,     0xb800
-    mov     es,     ax
-    mov     al,     80
-    mul     byte[bp+10]
-    add     ax,     word[bp+12]
-    shl     ax,     1
-    mov     di,     ax
-    mov     si,     [bp+8]
-    mov     cx,     [bp+6]
-    mov     ax,     [bp+4]
-    CLD
-    nextChar:
-        mov     al,     [si]
-        mov     [es:di],    ax
-        add     si,     1
-        add     di,     2
-        loop    nextChar
-    
-    pop     cx
-    pop     si
-    pop     di
-    pop     es
-    pop     ax
-    pop     bp
-
-    ret     10
+    push    bp 
+    mov     bp,     sp 
+    push    es 
+    push    ax 
+    push    cx 
+    push    si 
+    push    di 
+    push    ds 
+    pop     es 
+    mov     di,     [bp+4] 
+    mov     cx,     0xffff 
+    xor     al,     al
+    repne   scasb  
+    mov     ax,     0xffff 
+    sub     ax,     cx 
+    dec     ax  
+    jz      exit 
+    mov     cx,     ax 
+    mov     ax,     0xb800 
+    mov     es,     ax 
+    mov     al,     80 
+    mul     byte [bp+8] 
+    add     ax,     [bp+10]
+    shl     ax,     1 
+    mov     di,     ax  
+    mov     si,     [bp+4] 
+    mov     ah,     [bp+6] 
+    cld                     
+    nextchar:       
+            lodsb 
+            stosw 
+            loop    nextchar 
+    exit: 
+    pop di 
+    pop si 
+    pop cx 
+    pop ax 
+    pop es 
+    pop bp 
+    ret 8 
 renderScoreNTime:
     mov     ax,     00h   ;x co-ordinate
     push    ax
     mov     ax,     01h   ;y co-ordinate
     push    ax
-    mov     ax,     time    ;points to string
-    push    ax
-    push    word[strlenTime]
-    xor     ax,     ax
     mov     ah,     07h
     push    ax
+    mov     ax,     time    ;points to string
+    push    ax
+
     call    printText
 
     mov     ax,     40h   ;x co-ordinate
     push    ax
     mov     ax,     01h   ;y co-ordinate
     push    ax
-    mov     ax,     score
-    push    ax
-    push    word[strlenScore]
-    xor     ax,     ax
     mov     ah,     07h
     push    ax
+    mov     ax,     score
+    push    ax
+
     call    printText
 
     ret
@@ -166,52 +161,90 @@ renderCatcher:
     call    printDesignShapes
     ret
 MainMenu:
-    mov     ax,     23h   ;x co-ordinate
+    mov     ax,    0h 
     push    ax
-    mov     ax,     02h   ;y co-ordinate
+    mov     ax,     2h
+    push    ax 
+    mov     ax,     8h 
+    push    ax 
+    mov     ax,     text1
+    push    ax 
+    call    printText 
+    mov     ax,     0h 
+    push    ax 
+    mov     ax,     3h
     push    ax
-    mov     ax,     welcomeMess
+    mov     ax,     8h 
+    push    ax 
+    mov     ax,     text2
+    push    ax 
+    call    printText 
+    mov     ax,     0h 
+    push    ax 
+    mov     ax,     4h
     push    ax
-    push    word[strlenWelcomeMess]
-    xor     ax,     ax
-    mov     ah,     30h
+    mov     ax,     7h 
+    push    ax 
+    mov     ax,     text3
+    push    ax  
+    call    printText 
+    mov     ax,     0h 
+    push    ax 
+    mov     ax,     5h
+    push    ax 
+    mov     ax,     7h
+    push    ax 
+    mov     ax,     text4
     push    ax
-    call    printText
-    
-    mov     ax,     20h   ;x co-ordinate
+    call    printText 
+    mov     ax,    0h 
+    push    ax 
+    mov     ax,     6h
+    push    ax 
+    mov     ax,     7h 
+    push    ax 
+    mov     ax,     text5
+    push    ax 
+    call    printText 
+    mov     ax,     0h 
     push    ax
-    mov     ax,     08h   ;y co-ordinate
+    mov     ax,     7h
+    push    ax 
+    mov     ax,     7h 
+    push    ax 
+    mov     ax,     text6
+    push    ax 
+    call    printText 
+    mov     ax,     0h 
     push    ax
-    mov     ax,     cnsMess
-    push    ax
-    push    word[strlenCnsMess]
-    xor     ax,     ax
-    mov     ah,     20h
-    push    ax
-    call    printText
-    
+    mov     ax,     7h
+    push    ax 
+    mov     ax,     7h 
+    push    ax 
+    mov     ax,     text7
+    push    ax 
+    call    printText 
+
     mov     ax,     1Bh   ;x co-ordinate
     push    ax
     mov     ax,     0Ah   ;y co-ordinate
     push    ax
+    mov     ax,     34h     ;color
+    push    ax
     mov     ax,     enterMess
     push    ax
-    push    word[strlenEnterMess]
-    xor     ax,     ax
-    mov     ah,     34h     ;color
-    push    ax
+
     call    printText
     
     mov     ax,     2h   ;x co-ordinate
     push    ax
     mov     ax,     0Dh   ;y co-ordinate
     push    ax
+    mov     ax,     0x37
+    push    ax
     mov     ax,     instrucMess
     push    ax
-    push    word[strlenInstrucMess]
-    xor     ax,     ax
-    mov     ah,     0x37
-    push    ax
+
     call    printText
     
     ;Printing MAX Point Instruction
@@ -224,23 +257,24 @@ MainMenu:
     push    ax
     mov     ax,     0Fh   ;y co-ordinate
     push    ax
+    mov     ax,     0x72
+    push    ax
     mov     ax,     pointMsg
     push    ax
-    push    word[pointMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x72
-    push    ax
+
+ 
     call    printText
     mov     ax,     0xA   ;x co-ordinate
     push    ax
     mov     ax,     0Fh   ;y co-ordinate
     push    ax
+    xor     ax,     ax
+    mov     ah,     0x31
+ 
+    push    ax
     mov     ax,     maxPointMsg
     push    ax
-    push    word[maxMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x72
-    push    ax
+
     call    printText
 
     ;Printing MID Point Instruction
@@ -253,23 +287,22 @@ MainMenu:
     push    ax
     mov     ax,     13h   ;y co-ordinate
     push    ax
+    mov     ax,     0x31
+    push    ax
     mov     ax,     pointMsg
     push    ax
-    push    word[pointMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x31
-    push    ax
+
+    
     call    printText
     mov     ax,     0xA   ;x co-ordinate
     push    ax
     mov     ax,     13h   ;y co-ordinate
     push    ax
+    mov     ax,     0x31
+    push    ax 
     mov     ax,     midPointMsg
     push    ax
-    push    word[midMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x31
-    push    ax
+
     call    printText
 
     ;Printing MIN Point Instruction
@@ -282,23 +315,22 @@ MainMenu:
     push    ax
     mov     ax,     17h   ;y co-ordinate
     push    ax
+    mov     ax,     0x36
+    push    ax
     mov     ax,     pointMsg
     push    ax
-    push    word[pointMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x36
-    push    ax
+
+
     call    printText
     mov     ax,     0xA   ;x co-ordinate
     push    ax
     mov     ax,     17h   ;y co-ordinate
     push    ax
+    mov     ax,     0x36
+    push    ax
     mov     ax,     minPointMsg
     push    ax
-    push    word[minMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x36
-    push    ax
+
     call    printText
 
     ;Printing DEAD Point Instruction
@@ -311,23 +343,23 @@ MainMenu:
     push    ax
     mov     ax,     0Fh   ;y co-ordinate
     push    ax
+    xor     ax,     ax
+    mov     ax,     0x34
+    push    ax
     mov     ax,     pointMsg
     push    ax
-    push    word[pointMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x34
-    push    ax
+    
     call    printText
     mov     ax,     20h   ;x co-ordinate
     push    ax
     mov     ax,     0Fh   ;y co-ordinate
     push    ax
+    xor     ax,     ax
+    mov     ax,     0x34
+    push    ax
     mov     ax,     deadMsg
     push    ax
-    push    word[deadMsgLength]
-    xor     ax,     ax
-    mov     ah,     0x34
-    push    ax
+    
     call    printText
 
 
@@ -560,11 +592,10 @@ EndPage:
     push    ax
     mov     ax,     08h   ;y co-ordinate
     push    ax
-    mov     ax,     endMessage
-    push    ax
-    push    word[strlenEndMessage]
     xor     ax,     ax
     mov     ah,     30h
+    push    ax
+    mov     ax,     endMessage
     push    ax
     call    printText
 
@@ -572,18 +603,17 @@ EndPage:
     push    ax
     mov     ax,     0Dh   ;y co-ordinate
     push    ax
-    mov     ax,     score
-    push    ax
-    push    word[strlenScore]
     xor     ax,     ax
     mov     ah,     0x34
+    push    ax
+
+    mov     ax,     score
     push    ax
     call    printText
     ret
 loadMainMenu:
     call    clearScreen
     call    MainMenu
-    call    designShapes
     ret
 loadEndPage:
     call    clearScreen
@@ -661,10 +691,10 @@ waitAWhile
     ret
 start:
     call    loadMainMenu
-    call    waitAWhile
-    call    loadGamePage
-    call    waitAWhile
-    call    loadEndPage
+    ;call    waitAWhile
+    ;call    loadGamePage
+    ;call    waitAWhile
+    ;call    loadEndPage
     
 mov 	ax, 	0x4c00
 int 	21h
