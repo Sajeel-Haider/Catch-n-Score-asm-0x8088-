@@ -761,12 +761,15 @@ waitAWhile
     pop     cx
     ret
 start:
+<<<<<<< HEAD
     call    loadMainMenu
     ;call    waitAWhile
     ;call    loadGamePage
+=======
     ;call    loadMainMenu
     ;call    waitAWhile
     call    loadGamePage
+>>>>>>> 31975760b3bccbbaa26173dbae7578cbc4123866
     ;call    waitAWhile
     ;call    loadEndPage
     
