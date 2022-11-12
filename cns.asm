@@ -31,7 +31,7 @@ clearScreen:
     mov     ax,     00h   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     ah,     0xBB  ;color of the space
+    mov     ah,     0xEE  ;color of the space
     push    ax
     xor     ax,     ax
     mov     al,     20h
@@ -119,44 +119,117 @@ renderScoreNTime:
 
 renderCatcher:
     mov     ax,     22h   ;x co-ordinate
+    ;for printing stem of pickaxe
+    mov     ax,     25h   ;x co-ordinate
     push    ax
     mov     ax,     17h   ;y co-ordinate
     push    ax
     xor     ax,     ax
     mov     ah,     0xB0  ;color of the space
+    mov     ah,     0x06  ;color of the space   1st color of att and 2nd is background
     push    ax
     xor     ax,     ax
-    mov     al,     5Bh
+    mov     al,     0xB0
+    push    ax
+    mov     cx,     01h
+    push    cx
+    call    printDesignShapes
+    
+    mov     ax,     25h   ;x co-ordinate
+    push    ax
+    mov     ax,     16h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0x06  ;color of the space   1st color of att and 2nd is background
+    push    ax
+    xor     ax,     ax
+    mov     al,     0xB0
     push    ax
     mov     cx,     01h
     push    cx
     call    printDesignShapes
 
-    mov     ax,     29h   ;x co-ordinate
+    mov     ax,     25h   ;x co-ordinate
     push    ax
-    mov     ax,     17h   ;y co-ordinate
-    push    ax
-    xor     ax,     ax
-    mov     ah,     0xB0  ;color of the space
+    mov     ax,     15h   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     al,     5Dh
+    mov     ah,     0x06  ;color of the space   1st color of att and 2nd is background
+    push    ax
+    xor     ax,     ax
+    mov     al,     0xB0
     push    ax
     mov     cx,     01h
     push    cx
     call    printDesignShapes
-
+    ;for axe handle itself
+    mov     ax,     25h   ;x co-ordinate
+    push    ax
+    mov     ax,     14h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0x06  ;color of the space   1st color of att and 2nd is background
+    push    ax
+    xor     ax,     ax
+    mov     al,     0xBB
+    push    ax
+    mov     cx,     01h
+    push    cx
+    call    printDesignShapes
+    ;for axe itself
     mov     ax,     22h   ;x co-ordinate
     push    ax
-    mov     ax,     18h   ;y co-ordinate
+    mov     ax,     14h   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     ah,     0xB0  ;color of the space
+    mov     ah,     0x63  ;color of the space   1st color of att and 2nd is background
     push    ax
     xor     ax,     ax
-    mov     al,     7Eh
+    mov     al,     0xC9
     push    ax
-    mov     cx,     08h
+    mov     cx,     03h
+    push    cx
+    call    printDesignShapes
+
+    mov     ax,     23h   ;x co-ordinate
+    push    ax
+    mov     ax,     14h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB6  ;color of the space   1st color of att and 2nd is background
+    push    ax
+    xor     ax,     ax
+    mov     al,     0xCD
+    push    ax
+    mov     cx,     02h
+    push    cx
+    call    printDesignShapes
+
+    mov     ax,     26h   ;x co-ordinate
+    push    ax
+    mov     ax,     14h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xB6  ;color of the space   1st color of att and 2nd is background
+    push    ax
+    xor     ax,     ax
+    mov     al,     0xCD
+    push    ax
+    mov     cx,     02h
+    push    cx
+    call    printDesignShapes
+
+    mov     ax,     28h   ;x co-ordinate
+    push    ax
+    mov     ax,     14h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0x63  ;color of the space   1st color of att and 2nd is background
+    push    ax
+    xor     ax,     ax
+    mov     al,     0xBB
+    push    ax
+    mov     cx,     01h
     push    cx
     call    printDesignShapes
     ret
@@ -693,6 +766,9 @@ start:
     call    loadMainMenu
     ;call    waitAWhile
     ;call    loadGamePage
+    ;call    loadMainMenu
+    ;call    waitAWhile
+    call    loadGamePage
     ;call    waitAWhile
     ;call    loadEndPage
     
