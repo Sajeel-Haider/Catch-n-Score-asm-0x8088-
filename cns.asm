@@ -118,14 +118,12 @@ renderScoreNTime:
     ret
 
 renderCatcher:
-    mov     ax,     22h   ;x co-ordinate
     ;for printing stem of pickaxe
     mov     ax,     25h   ;x co-ordinate
     push    ax
     mov     ax,     17h   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     ah,     0xB0  ;color of the space
     mov     ah,     0x06  ;color of the space   1st color of att and 2nd is background
     push    ax
     xor     ax,     ax
