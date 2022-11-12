@@ -761,7 +761,7 @@ waitAWhile
     pop     cx
     ret
 start:
-    call    loadMainMenu
+    ;call    loadMainMenu
     ;call    waitAWhile
     ;call    loadGamePage
     ;call    loadMainMenu
