@@ -12,6 +12,8 @@ maxPointMsg:     db  '15 Points ',0
 midPointMsg:     db  '10 Points ',0
 minPointMsg:     db  '5 Points',0
 pointMsg:     db  '>',0
+tnt1: db '_   _',0
+tnt2: db '||\||',0
 
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
@@ -352,7 +354,7 @@ MainMenu:
 
     mov     al,18
     mov     bl,2
-    call    midPointShape
+    ;call    midPointShape
     
     mov     ax,     7   ;x co-ordinate
     push    ax
@@ -438,132 +440,166 @@ MainMenu:
 
 holdMyTnt: 
 
+    push    bp
+    mov     bp,     sp     
     push    di
     push    es
     push    cx    
 
-    mov     cx,80
-    mov     ah,0
-    mul     cx
-    mov     bh,0
-    add     ax,bx
-    shl     ax,1
-    mov     di,ax           ; selecting location on screen
-    mov     ax,0xB800
-    mov     es,ax
+    mov     cx,     80
+    xor     ax,     ax
+    mov     al,     [bp+4]
+    mul     cl
+    add     ax,     [bp+6]
+    shl     ax,     1
+    mov     di,     ax           ; selecting location on screen
+    mov     ax,     0xB800
+    mov     es,     ax
     CLD
-    mov     ax,0x34C9       ; just printing shape afterwards
+    mov     cx,     15
+    mov     ax,     0x4020       ; just printing shape afterwards
+    rep     STOSw 
+    add     di,     160
+    sub     di,     30
+    mov     cx,     15
+    mov     ax,     0x4020       ; just printing shape afterwards
+    rep     STOSw 
+    add     di,     160
+    sub     di,     30
+    mov     cx,     5
+    mov     ax,     0x7020
+    rep     STOSw 
+    mov     ax,     0x705F
     STOSw 
-    mov     ax,0x34CD
+    mov     ax,     0x7020
     STOSw 
-    mov     ax,0x34BB
+    mov     ax,     0x7020
     STOSw 
-    add     di,154
-    mov     ax,0x34C8
+    
+    mov     ax,     0x7020
     STOSw 
-    mov     ax,0x34CB
+    mov     ax,     0x705F
     STOSw 
-    mov     ax,0x34BC
+    mov     cx,     5
+    mov     ax,     0x7020
+    rep     STOSw 
+     
+    add     di,     160
+    sub     di,     30
+    mov     cx,     5
+    mov     ax,     0x7020
+    rep     STOSw 
+    mov     ax,     0x707C
     STOSw 
-    add     di,154
-    mov     ax,0x34CD
-    STOSw
-    mov     ax,0x34CA
+    mov     ax,     0x707C
     STOSw 
-    mov     ax,0x34CD
-    STOSw
+    mov     ax,     0x705C
+    STOSw 
+    
+    mov     ax,     0x707C
+    STOSw 
+    mov     ax,     0x707C
+    STOSw 
+    mov     cx,     5
+    mov     ax,     0x7020
+    rep     STOSw 
+     
+    add     di,     160
+    sub     di,     30
+    
+    mov     cx,     15
+    mov     ax,     0x4020       ; just printing shape afterwards
+    rep     STOSw 
+    add     di,     160
+    sub     di,     30
+    mov     cx,     15
+    mov     ax,     0x4020       ; just printing shape afterwards
+    rep     STOSw 
 
     pop     cx
     pop     es
     pop     di
+    pop     bp
 
-    ret 
+    ret     4
 
 maxPointShape:
     
 
+    push    bp
+    mov     bp,     sp     
     push    di
     push    es
     push    cx    
 
-    mov     cx,80
-    mov     ah,0
-    mul     cx
-    mov     bh,0
-    add     ax,bx
-    shl     ax,1
-    mov     di,ax           ; selecting location on screen
-    mov     ax,0xB800
-    mov     es,ax
+    mov     cx,     80
+    xor     ax,     ax
+    mov     al,     [bp+4]
+    mul     cl
+    add     ax,     [bp+6]
+    shl     ax,     1
+    mov     di,     ax           ; selecting location on screen
+    mov     ax,     0xB800
+    mov     es,     ax
     CLD
-    mov     ax,0x72C9       ; just printing shape afterwards
-    STOSw 
-    mov     ax,0x72B0
-    STOSw 
-    mov     ax,0x72BB
-    STOSw 
-    add     di,154
-    mov     ax,0x72B0
-    STOSw 
-    mov     ax,0x72B2
-    STOSw 
-    mov     ax,0x72B0
-    STOSw 
-    add     di,154
-    mov     ax,0x72C8
-    STOSw
-    mov     ax,0x72C9
-    STOSw 
-    mov     ax,0x72BC
-    STOSw
-
-    pop     cx
-    pop     es
-    pop     di
-    ret 
-
-midPointShape:
+    mov     cx,     6
+    mov     ax,     0x0020
+    rep     STOSW   
+    add     di,     160
+    sub     di,     14
+    STOSW   
+    mov     ax,     0x3020
+    mov     cx,     6
+    rep     STOSW
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     18
     
+    STOSW   
+    mov     ax,     0x3020
+    mov     cx,     8
+    
+    rep     STOSw
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     22
+    mov     cx,     3
+    l1: 
+        STOSW   
+        mov     ax,     0x3020
+        push    cx
+        mov     cx,     10
+        
+        rep     STOSw
+        pop     cx
+        mov     ax,     0x0020
+        STOSW
+        add     di,     160
+        sub     di,     24
+        loop    l1
 
-    push    di
-    push    es
-    push    cx    
+    add     di,     2
+    STOSW   
+    mov     ax,     0x3020
+    mov     cx,     8
+    
+    rep     STOSw
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     18
+    mov     cx,     8
+    rep     STOSW
 
-    mov     cx,80
-    mov     ah,0
-    mul     cx
-    mov     bh,0
-    add     ax,bx
-    shl     ax,1
-    mov     di,ax           ; selecting location on screen
-    mov     ax,0xB800
-    mov     es,ax
-    CLD
-    mov     ax,0x31C9       ; just printing shape afterwards
-    STOSw 
-    mov     ax,0x31B0
-    STOSw 
-    mov     ax,0x31BB
-    STOSw 
-    add     di,154
-    mov     ax,0x31B0
-    STOSw 
-    mov     ax,0x31B2
-    STOSw 
-    mov     ax,0x31B0
-    STOSw 
-    add     di,154
-    mov     ax,0x31C8
-    STOSw
-    mov     ax,0x31CD
-    STOSw 
-    mov     ax,0x31BC
-    STOSw
 
     pop     cx
     pop     es
     pop     di
-    ret 
+    pop     bp
+
+    ret     4
 
 minPointShape:
     
@@ -607,6 +643,7 @@ minPointShape:
     pop     es
     pop     di
     ret 
+
 printDesignShapes:
     push    bp
     mov     bp,     sp
@@ -695,54 +732,60 @@ loadGamePage:
     call    renderScoreNTime
     call    renderCatcher
     ; maybe a loop to call it again and again
-    mov     al,4 ; row 
-    mov     bl,4 ; column can be randomly selected using random function
+    mov     ax,     4 ; column 
+    push    ax
+    mov     ax,     4 ; row can be randomly selected using random function
+    push    ax
     call    holdMyTnt
     
-    mov     al,8 ; row 
-    mov     bl,34 ; column can be randomly selected using random function
-    call    holdMyTnt
+    mov     ax,     34 ; column
+    push    ax 
+    mov     ax,     8 ; row can be randomly selected using random function
+    push    ax
+    call    maxPointShape
 
-    mov     al,12 ; row 
-    mov     bl,64 ; column can be randomly selected using random function
+    mov     ax,     64 ; column
+    push    ax 
+    mov     ax,     12 ; row can be randomly selected using random function
+    push    ax
     call    holdMyTnt
     
     
-    mov     al,12 ; row 
-    mov     bl,13 ; column can be randomly selected using random function
-    call    maxPointShape
-
-    mov     al,16 ; row 
-    mov     bl,43; column can be randomly selected using random function
-    call    maxPointShape
-
-    mov     al,20 ; row 
-    mov     bl,70 ; column can be randomly selected using random function
-    call    maxPointShape
-
-    mov     al,9 ; row 
-    mov     bl,4; column can be randomly selected using random function
-    call    midPointShape
-
-    mov     al,13 ; row 
-    mov     bl,34; column can be randomly selected using random function
-    call    midPointShape
-
-    mov     al,17 ; row 
-    mov     bl,64; column can be randomly selected using random function
-    call    midPointShape
-
-    mov     al,6 ; row 
-    mov     bl,13; column can be randomly selected using random function
-    call    minPointShape
-
-    mov     al,10 ; row 
-    mov     bl,43; column can be randomly selected using random function
-    call    minPointShape
-
-    mov     al,14 ; row 
-    mov     bl,70; column can be randomly selected using random function
-    call    minPointShape
+    ;mov     al,12 ; row 
+    ;mov     bl,13 ; column can be randomly selected using random function
+    ;call    maxPointShape
+;
+    ;mov     al,16 ; row 
+    ;mov     bl,43; column can be randomly selected using random function
+    ;call    maxPointShape
+;
+    ;mov     al,20 ; row 
+    ;mov     bl,70 ; column can be randomly selected using random function
+    ;call    maxPointShape
+;
+    ;mov     al,9 ; row 
+    ;mov     bl,4; column can be randomly selected using random function
+    ;call    midPointShape
+;
+    ;mov     al,13 ; row 
+    ;mov     bl,34; column can be randomly selected using random function
+    ;call    midPointShape
+;
+    ;mov     al,17 ; row 
+    ;mov     bl,64; column can be randomly selected using random function
+    ;call    midPointShape
+;
+    ;mov     al,6 ; row 
+    ;mov     bl,13; column can be randomly selected using random function
+    ;call    minPointShape
+;
+    ;mov     al,10 ; row 
+    ;mov     bl,43; column can be randomly selected using random function
+    ;call    minPointShape
+;
+    ;mov     al,14 ; row 
+    ;mov     bl,70; column can be randomly selected using random function
+    ;call    minPointShape
 
     ret
 waitAWhile
