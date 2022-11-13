@@ -354,7 +354,7 @@ MainMenu:
 
     mov     al,18
     mov     bl,2
-    ;call    midPointShape
+    call    midPointShape
     
     mov     ax,     7   ;x co-ordinate
     push    ax
@@ -601,48 +601,193 @@ maxPointShape:
 
     ret     4
 
-minPointShape:
+
+midPointShape:
     
 
+    push    bp
+    mov     bp,     sp     
     push    di
     push    es
     push    cx    
 
-    mov     cx,80
-    mov     ah,0
-    mul     cx
-    mov     bh,0
-    add     ax,bx
-    shl     ax,1
-    mov     di,ax           ; selecting location on screen
-    mov     ax,0xB800
-    mov     es,ax
+    mov     cx,     80
+    xor     ax,     ax
+    mov     al,     [bp+4]
+    mul     cl
+    add     ax,     [bp+6]
+    shl     ax,     1
+    mov     di,     ax           ; selecting location on screen
+    mov     ax,     0xB800
+    mov     es,     ax
     CLD
-    mov     ax,0x36C9       ; just printing shape afterwards
-    STOSw 
-    mov     ax,0x36CD
-    STOSw 
-    mov     ax,0x36BB
-    STOSw 
-    add     di,154
-    mov     ax,0x36B0
-    STOSw 
-    mov     ax,0x36B2
-    STOSw 
-    mov     ax,0x36B0
-    STOSw 
-    add     di,154
-    mov     ax,0x36C8
-    STOSw
-    mov     ax,0x36CD
-    STOSw 
-    mov     ax,0x36BC
-    STOSw
+    mov     cx,     6
+    mov     ax,     0x0020
+    rep     STOSW   
+    add     di,     160
+    sub     di,     14
+    STOSW   
+    mov     ax,     0x2020
+    mov     cx,     6
+    rep     STOSW
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     18
+    
+    STOSW   
+    mov     ax,     0x2020
+    mov     cx,     8
+    
+    rep     STOSw
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     22
+    mov     cx,     3
+    l2: 
+        STOSW   
+        mov     ax,     0x2020
+        push    cx
+        mov     cx,     10
+        
+        rep     STOSw
+        pop     cx
+        mov     ax,     0x0020
+        STOSW
+        add     di,     160
+        sub     di,     24
+        loop    l2
+
+    add     di,     2
+    STOSW   
+    mov     ax,     0x2020
+    mov     cx,     8
+    
+    rep     STOSw
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     18
+    mov     cx,     8
+    rep     STOSW
+
 
     pop     cx
     pop     es
     pop     di
-    ret 
+    pop     bp
+
+    ret     4
+
+
+minPointShape:
+    
+
+    push    bp
+    mov     bp,     sp     
+    push    di
+    push    es
+    push    cx    
+
+    mov     cx,     80
+    xor     ax,     ax
+    mov     al,     [bp+4]
+    mul     cl
+    add     ax,     [bp+6]
+    shl     ax,     1
+    mov     di,     ax       
+    mov     ax,     0xB800
+    mov     es,     ax
+    CLD
+    mov     cx,     6
+    mov     ax,     0x0020
+    rep     STOSW   
+    add     di,     160
+    sub     di,     14
+    STOSW   
+    mov     ax,     0xE020  ;Change these ones 
+    
+    mov     cx,     6
+    rep     STOSW
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     16
+
+    STOSW   
+    mov     ax,     0xE020
+    STOSW
+    mov     cx,     4
+    mov     ax,     0x8020
+    rep     STOSW
+    mov     ax,     0xE020
+    STOSW
+    mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     16
+    STOSW   
+    mov     ax,     0xE020
+    STOSW
+    mov     ax,     0x8020
+    STOSW
+    mov     ax,     0xE020
+    STOSW
+    STOSW
+    mov     ax,     0x8020
+    STOSW
+    mov     ax,     0xE020
+    STOSW
+    mov     ax,     0x0020
+    STOSW
+
+    add     di,     160
+    sub     di,     16
+
+    STOSW   
+    mov     ax,     0xE020
+    STOSW
+    mov     cx,     4
+    mov     ax,     0x8020
+    rep     STOSW
+    mov     ax,     0xE020
+    STOSW
+    mov     ax,     0x0020
+    STOSW
+
+    
+
+    add     di,     160
+    sub     di,     16
+    STOSW   
+    mov     ax,     0xE020
+    mov     cx,     6
+    rep     STOSW
+    mov     ax,     0x0020
+    STOSW
+
+    add     di,     160
+    sub     di,     14
+
+    mov     cx,     6
+    mov     ax,     0x0020
+    rep     STOSW   
+    
+     
+  
+    
+
+    pop     cx
+    pop     es
+    pop     di
+    pop     bp
+
+    ret     4
+
+    
+
+    
 
 printDesignShapes:
     push    bp
@@ -748,13 +893,15 @@ loadGamePage:
     push    ax 
     mov     ax,     12 ; row can be randomly selected using random function
     push    ax
-    call    holdMyTnt
+    call    midPointShape
     
     
-    ;mov     al,12 ; row 
-    ;mov     bl,13 ; column can be randomly selected using random function
-    ;call    maxPointShape
-;
+    mov     ax,     2 ; column
+    push    ax 
+    mov     ax,     14 ; row can be randomly selected using random function
+    push    ax
+    call    minPointShape
+
     ;mov     al,16 ; row 
     ;mov     bl,43; column can be randomly selected using random function
     ;call    maxPointShape
