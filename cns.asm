@@ -6,7 +6,7 @@ welcomeMess:    db  'W E L C O M E !',0
 cnsMess:    db  'C A T C H  &  C A R R Y',0
 enterMess:  db  'Press Enter to Continue',0
 instrucMess:    db  'Instructions :',0
-endMessage:     db  'Thank you for playing!',0
+endMessage:     db  'T H A N K  Y O U  F O R  P L A Y I N G!',0
 deadMsg:     db  'Y O U  D I E ',0
 maxPointMsg:     db  '15 Points ',0
 midPointMsg:     db  '10 Points ',0
@@ -14,7 +14,6 @@ minPointMsg:     db  '5 Points',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
-
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
 text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
@@ -99,7 +98,8 @@ renderScoreNTime:
     push    ax
     mov     ax,     01h   ;y co-ordinate
     push    ax
-    mov     ah,     07h
+    xor     ax,     ax
+    mov     ax,     67h
     push    ax
     mov     ax,     time    ;points to string
     push    ax
@@ -110,7 +110,8 @@ renderScoreNTime:
     push    ax
     mov     ax,     01h   ;y co-ordinate
     push    ax
-    mov     ah,     07h
+    xor     ax,     ax
+    mov     ax,     67h
     push    ax
     mov     ax,     score
     push    ax
@@ -236,7 +237,7 @@ renderCatcher:
 MainMenu:
     mov     ax,    0h 
     push    ax
-    mov     ax,     2h
+    mov     ax,     7
     push    ax 
     mov     ax,     8h 
     push    ax 
@@ -245,7 +246,7 @@ MainMenu:
     call    printText 
     mov     ax,     0h 
     push    ax 
-    mov     ax,     3h
+    mov     ax,     8
     push    ax
     mov     ax,     8h 
     push    ax 
@@ -254,7 +255,7 @@ MainMenu:
     call    printText 
     mov     ax,     0h 
     push    ax 
-    mov     ax,     4h
+    mov     ax,     9
     push    ax
     mov     ax,     7h 
     push    ax 
@@ -263,7 +264,7 @@ MainMenu:
     call    printText 
     mov     ax,     0h 
     push    ax 
-    mov     ax,     5h
+    mov     ax,     10
     push    ax 
     mov     ax,     7h
     push    ax 
@@ -272,7 +273,7 @@ MainMenu:
     call    printText 
     mov     ax,    0h 
     push    ax 
-    mov     ax,     6h
+    mov     ax,     11
     push    ax 
     mov     ax,     7h 
     push    ax 
@@ -281,7 +282,7 @@ MainMenu:
     call    printText 
     mov     ax,     0h 
     push    ax
-    mov     ax,     7h
+    mov     ax,     12
     push    ax 
     mov     ax,     7h 
     push    ax 
@@ -290,7 +291,7 @@ MainMenu:
     call    printText 
     mov     ax,     0h 
     push    ax
-    mov     ax,     7h
+    mov     ax,     13
     push    ax 
     mov     ax,     7h 
     push    ax 
@@ -300,141 +301,16 @@ MainMenu:
 
     mov     ax,     1Bh   ;x co-ordinate
     push    ax
-    mov     ax,     0Ah   ;y co-ordinate
+    mov     ax,     0x13   ;y co-ordinate
     push    ax
-    mov     ax,     34h     ;color
+    mov     ax,     60h     ;color
     push    ax
     mov     ax,     enterMess
     push    ax
 
     call    printText
     
-    mov     ax,     2h   ;x co-ordinate
-    push    ax
-    mov     ax,     0Dh   ;y co-ordinate
-    push    ax
-    mov     ax,     0x37
-    push    ax
-    mov     ax,     instrucMess
-    push    ax
-
-    call    printText
     
-    ;Printing MAX Point Instruction
-
-    mov     al,14
-    mov     bl,2
-    call    maxPointShape
-    
-    mov     ax,     7   ;x co-ordinate
-    push    ax
-    mov     ax,     0Fh   ;y co-ordinate
-    push    ax
-    mov     ax,     0x72
-    push    ax
-    mov     ax,     pointMsg
-    push    ax
-
- 
-    call    printText
-    mov     ax,     0xA   ;x co-ordinate
-    push    ax
-    mov     ax,     0Fh   ;y co-ordinate
-    push    ax
-    xor     ax,     ax
-    mov     ah,     0x31
- 
-    push    ax
-    mov     ax,     maxPointMsg
-    push    ax
-
-    call    printText
-
-    ;Printing MID Point Instruction
-
-    mov     al,18
-    mov     bl,2
-    call    midPointShape
-    
-    mov     ax,     7   ;x co-ordinate
-    push    ax
-    mov     ax,     13h   ;y co-ordinate
-    push    ax
-    mov     ax,     0x31
-    push    ax
-    mov     ax,     pointMsg
-    push    ax
-
-    
-    call    printText
-    mov     ax,     0xA   ;x co-ordinate
-    push    ax
-    mov     ax,     13h   ;y co-ordinate
-    push    ax
-    mov     ax,     0x31
-    push    ax 
-    mov     ax,     midPointMsg
-    push    ax
-
-    call    printText
-
-    ;Printing MIN Point Instruction
-
-    mov     al,22
-    mov     bl,2
-    call    minPointShape
-    
-    mov     ax,     7   ;x co-ordinate
-    push    ax
-    mov     ax,     17h   ;y co-ordinate
-    push    ax
-    mov     ax,     0x36
-    push    ax
-    mov     ax,     pointMsg
-    push    ax
-
-
-    call    printText
-    mov     ax,     0xA   ;x co-ordinate
-    push    ax
-    mov     ax,     17h   ;y co-ordinate
-    push    ax
-    mov     ax,     0x36
-    push    ax
-    mov     ax,     minPointMsg
-    push    ax
-
-    call    printText
-
-    ;Printing DEAD Point Instruction
-
-    mov     al,14
-    mov     bl,25
-    call    holdMyTnt
-    
-    mov     ax,     1Eh   ;x co-ordinate
-    push    ax
-    mov     ax,     0Fh   ;y co-ordinate
-    push    ax
-    xor     ax,     ax
-    mov     ax,     0x34
-    push    ax
-    mov     ax,     pointMsg
-    push    ax
-    
-    call    printText
-    mov     ax,     20h   ;x co-ordinate
-    push    ax
-    mov     ax,     0Fh   ;y co-ordinate
-    push    ax
-    xor     ax,     ax
-    mov     ax,     0x34
-    push    ax
-    mov     ax,     deadMsg
-    push    ax
-    
-    call    printText
-
 
     ret
 
@@ -706,7 +582,7 @@ minPointShape:
     add     di,     160
     sub     di,     14
     STOSW   
-    mov     ax,     0xE020  ;Change these ones 
+    mov     ax,     0x5020  ;Change these ones 
     
     mov     cx,     6
     rep     STOSW
@@ -716,28 +592,28 @@ minPointShape:
     sub     di,     16
 
     STOSW   
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     STOSW
     mov     cx,     4
     mov     ax,     0x8020
     rep     STOSW
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     STOSW
     mov     ax,     0x0020
     STOSW
     add     di,     160
     sub     di,     16
     STOSW   
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     STOSW
     mov     ax,     0x8020
     STOSW
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     STOSW
     STOSW
     mov     ax,     0x8020
     STOSW
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     STOSW
     mov     ax,     0x0020
     STOSW
@@ -746,12 +622,12 @@ minPointShape:
     sub     di,     16
 
     STOSW   
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     STOSW
     mov     cx,     4
     mov     ax,     0x8020
     rep     STOSW
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     STOSW
     mov     ax,     0x0020
     STOSW
@@ -761,7 +637,7 @@ minPointShape:
     add     di,     160
     sub     di,     16
     STOSW   
-    mov     ax,     0xE020
+    mov     ax,     0x5020
     mov     cx,     6
     rep     STOSW
     mov     ax,     0x0020
@@ -841,12 +717,12 @@ designShapes:
     ret
 
 EndPage:
-    mov     ax,     1Ch   ;x co-ordinate
+    mov     ax,     15h   ;x co-ordinate
     push    ax
     mov     ax,     08h   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     ah,     30h
+    mov     ax,     60h
     push    ax
     mov     ax,     endMessage
     push    ax
@@ -857,9 +733,8 @@ EndPage:
     mov     ax,     0Dh   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     ah,     0x34
+    mov     ax,     60h
     push    ax
-
     mov     ax,     score
     push    ax
     call    printText
@@ -951,14 +826,151 @@ waitAWhile
     pop     cx
     ret
 start:
-    ;call    loadMainMenu
+    call    loadMainMenu
     ;call    waitAWhile
     ;call    loadGamePage
     ;call    loadMainMenu
     ;call    waitAWhile
-    call    loadGamePage
+    ;call    loadGamePage
     ;call    waitAWhile
     ;call    loadEndPage
     
 mov 	ax, 	0x4c00
 int 	21h
+
+
+
+
+
+
+
+
+
+
+
+
+; mov     ax,     2h   ;x co-ordinate
+;     push    ax
+;     mov     ax,     0Dh   ;y co-ordinate
+;     push    ax
+;     mov     ax,     0x37
+;     push    ax
+;     mov     ax,     instrucMess
+;     push    ax
+
+;     call    printText
+    
+;     ;Printing MAX Point Instruction
+
+;     mov     al,14
+;     mov     bl,2
+;     call    maxPointShape
+    
+;     mov     ax,     7   ;x co-ordinate
+;     push    ax
+;     mov     ax,     0Fh   ;y co-ordinate
+;     push    ax
+;     mov     ax,     0x72
+;     push    ax
+;     mov     ax,     pointMsg
+;     push    ax
+
+ 
+;     call    printText
+;     mov     ax,     0xA   ;x co-ordinate
+;     push    ax
+;     mov     ax,     0Fh   ;y co-ordinate
+;     push    ax
+;     xor     ax,     ax
+;     mov     ah,     0x31
+ 
+;     push    ax
+;     mov     ax,     maxPointMsg
+;     push    ax
+
+;     call    printText
+
+;     ;Printing MID Point Instruction
+
+;     mov     al,18
+;     mov     bl,2
+;     call    midPointShape
+    
+;     mov     ax,     7   ;x co-ordinate
+;     push    ax
+;     mov     ax,     13h   ;y co-ordinate
+;     push    ax
+;     mov     ax,     0x31
+;     push    ax
+;     mov     ax,     pointMsg
+;     push    ax
+
+    
+;     call    printText
+;     mov     ax,     0xA   ;x co-ordinate
+;     push    ax
+;     mov     ax,     13h   ;y co-ordinate
+;     push    ax
+;     mov     ax,     0x31
+;     push    ax 
+;     mov     ax,     midPointMsg
+;     push    ax
+
+;     call    printText
+
+;     ;Printing MIN Point Instruction
+
+;     mov     al,22
+;     mov     bl,2
+;     call    minPointShape
+    
+;     mov     ax,     7   ;x co-ordinate
+;     push    ax
+;     mov     ax,     17h   ;y co-ordinate
+;     push    ax
+;     mov     ax,     0x36
+;     push    ax
+;     mov     ax,     pointMsg
+;     push    ax
+
+
+;     call    printText
+;     mov     ax,     0xA   ;x co-ordinate
+;     push    ax
+;     mov     ax,     17h   ;y co-ordinate
+;     push    ax
+;     mov     ax,     0x36
+;     push    ax
+;     mov     ax,     minPointMsg
+;     push    ax
+
+;     call    printText
+
+;     ;Printing DEAD Point Instruction
+
+;     mov     al,14
+;     mov     bl,25
+;     call    holdMyTnt
+    
+;     mov     ax,     1Eh   ;x co-ordinate
+;     push    ax
+;     mov     ax,     0Fh   ;y co-ordinate
+;     push    ax
+;     xor     ax,     ax
+;     mov     ax,     0x34
+;     push    ax
+;     mov     ax,     pointMsg
+;     push    ax
+    
+;     call    printText
+;     mov     ax,     20h   ;x co-ordinate
+;     push    ax
+;     mov     ax,     0Fh   ;y co-ordinate
+;     push    ax
+;     xor     ax,     ax
+;     mov     ax,     0x34
+;     push    ax
+;     mov     ax,     deadMsg
+;     push    ax
+    
+;     call    printText
