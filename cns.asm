@@ -5,7 +5,7 @@ time:       db      'Time: ',0
 welcomeMess:    db  'W E L C O M E !',0
 cnsMess:    db  'C A T C H  &  C A R R Y',0
 enterMess:  db  'Press Enter to Continue',0
-instrucMess:    db  'Instructions :',0
+instrucMess:    db  'I N S T R U C T I O N S',0
 endMessage:     db  'T H A N K  Y O U  F O R  P L A Y I N G!',0
 deadMsg:     db  'Y O U  D I E ',0
 maxPointMsg:     db  '15 Points ',0
@@ -739,6 +739,137 @@ EndPage:
     push    ax
     call    printText
     ret
+
+InstructionsPage:
+    
+    mov     ax,     28   ;x co-ordinate
+    push    ax
+    mov     ax,     2   ;y co-ordinate
+    push    ax
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     instrucMess
+    push    ax
+
+    call    printText
+  
+    ;Printing MAX Point Instruction
+    mov     ax,     8
+    push    ax
+    mov     ax,     6
+    push    ax
+    call    maxPointShape
+  
+    mov     ax,     19   ;x co-ordinate
+    push    ax
+    mov     ax,     10   ;y co-ordinate
+    push    ax
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     pointMsg
+    push    ax
+    call    printText
+ 
+    mov     ax,     21   ;x co-ordinate
+    push    ax
+    mov     ax,     10   ;y co-ordinate
+    push    ax   
+    xor     ax,     ax
+    mov     ax,     0x67
+    push    ax
+ 
+
+    mov     ax,     maxPointMsg
+    push    ax
+    call    printText
+    ;Printing MID Point Instruction
+    mov     ax,     8
+    push    ax
+    mov     ax,     16
+    push    ax
+    call    midPointShape
+    mov     ax,     19   ;x co-ordinate
+    push    ax
+    mov     ax,     20   ;y co-ordinate
+    push    ax
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     pointMsg
+    push    ax
+    call    printText
+    
+    mov     ax,     21   ;x co-ordinate
+    push    ax
+    mov     ax,     20   ;y co-ordinate
+    push    ax 
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     midPointMsg
+    push    ax
+    call    printText
+    ;Printing MIN Point Instruction
+    mov     ax,     48
+    push    ax
+    mov     ax,     6
+    push    ax
+    call    minPointShape
+  
+    mov     ax,     57   ;x co-ordinate
+    push    ax
+    mov     ax,     10   ;y co-ordinate
+    push    ax
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     pointMsg
+    push    ax
+    call    printText
+ 
+    mov     ax,     59   ;x co-ordinate
+    push    ax
+    mov     ax,     10   ;y co-ordinate
+    push    ax   
+    xor     ax,     ax
+    mov     ax,     0x67
+    push    ax
+ 
+
+    mov     ax,     minPointMsg
+    push    ax
+    call    printText
+    ;Printing DEAD Point Instruction
+    mov     ax,     40
+    push    ax
+    mov     ax,     17
+    push    ax
+    call    holdMyTnt
+    mov     ax,     57   ;x co-ordinate
+    push    ax
+    mov     ax,     20   ;y co-ordinate
+    push    ax
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     pointMsg
+    push    ax
+    call    printText
+    
+    mov     ax,     59   ;x co-ordinate
+    push    ax
+    mov     ax,     20   ;y co-ordinate
+    push    ax 
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     deadMsg
+    push    ax
+    call    printText
+    
+    ret
+
+
+loadInstructionsPage:
+    call    clearScreen
+    call    InstructionsPage
+    ret
+
 loadMainMenu:
     call    clearScreen
     call    MainMenu
@@ -777,38 +908,6 @@ loadGamePage:
     push    ax
     call    minPointShape
 
-    ;mov     al,16 ; row 
-    ;mov     bl,43; column can be randomly selected using random function
-    ;call    maxPointShape
-;
-    ;mov     al,20 ; row 
-    ;mov     bl,70 ; column can be randomly selected using random function
-    ;call    maxPointShape
-;
-    ;mov     al,9 ; row 
-    ;mov     bl,4; column can be randomly selected using random function
-    ;call    midPointShape
-;
-    ;mov     al,13 ; row 
-    ;mov     bl,34; column can be randomly selected using random function
-    ;call    midPointShape
-;
-    ;mov     al,17 ; row 
-    ;mov     bl,64; column can be randomly selected using random function
-    ;call    midPointShape
-;
-    ;mov     al,6 ; row 
-    ;mov     bl,13; column can be randomly selected using random function
-    ;call    minPointShape
-;
-    ;mov     al,10 ; row 
-    ;mov     bl,43; column can be randomly selected using random function
-    ;call    minPointShape
-;
-    ;mov     al,14 ; row 
-    ;mov     bl,70; column can be randomly selected using random function
-    ;call    minPointShape
-
     ret
 waitAWhile
     push    cx
@@ -827,13 +926,12 @@ waitAWhile
     ret
 start:
     call    loadMainMenu
-    ;call    waitAWhile
-    ;call    loadGamePage
-    ;call    loadMainMenu
-    ;call    waitAWhile
-    ;call    loadGamePage
-    ;call    waitAWhile
-    ;call    loadEndPage
+    call    waitAWhile
+    call    loadInstructionsPage
+    call    waitAWhile
+    call    loadGamePage
+    call    waitAWhile
+    call    loadEndPage
     
 mov 	ax, 	0x4c00
 int 	21h
@@ -848,129 +946,3 @@ int 	21h
 
 
 
-
-; mov     ax,     2h   ;x co-ordinate
-;     push    ax
-;     mov     ax,     0Dh   ;y co-ordinate
-;     push    ax
-;     mov     ax,     0x37
-;     push    ax
-;     mov     ax,     instrucMess
-;     push    ax
-
-;     call    printText
-    
-;     ;Printing MAX Point Instruction
-
-;     mov     al,14
-;     mov     bl,2
-;     call    maxPointShape
-    
-;     mov     ax,     7   ;x co-ordinate
-;     push    ax
-;     mov     ax,     0Fh   ;y co-ordinate
-;     push    ax
-;     mov     ax,     0x72
-;     push    ax
-;     mov     ax,     pointMsg
-;     push    ax
-
- 
-;     call    printText
-;     mov     ax,     0xA   ;x co-ordinate
-;     push    ax
-;     mov     ax,     0Fh   ;y co-ordinate
-;     push    ax
-;     xor     ax,     ax
-;     mov     ah,     0x31
- 
-;     push    ax
-;     mov     ax,     maxPointMsg
-;     push    ax
-
-;     call    printText
-
-;     ;Printing MID Point Instruction
-
-;     mov     al,18
-;     mov     bl,2
-;     call    midPointShape
-    
-;     mov     ax,     7   ;x co-ordinate
-;     push    ax
-;     mov     ax,     13h   ;y co-ordinate
-;     push    ax
-;     mov     ax,     0x31
-;     push    ax
-;     mov     ax,     pointMsg
-;     push    ax
-
-    
-;     call    printText
-;     mov     ax,     0xA   ;x co-ordinate
-;     push    ax
-;     mov     ax,     13h   ;y co-ordinate
-;     push    ax
-;     mov     ax,     0x31
-;     push    ax 
-;     mov     ax,     midPointMsg
-;     push    ax
-
-;     call    printText
-
-;     ;Printing MIN Point Instruction
-
-;     mov     al,22
-;     mov     bl,2
-;     call    minPointShape
-    
-;     mov     ax,     7   ;x co-ordinate
-;     push    ax
-;     mov     ax,     17h   ;y co-ordinate
-;     push    ax
-;     mov     ax,     0x36
-;     push    ax
-;     mov     ax,     pointMsg
-;     push    ax
-
-
-;     call    printText
-;     mov     ax,     0xA   ;x co-ordinate
-;     push    ax
-;     mov     ax,     17h   ;y co-ordinate
-;     push    ax
-;     mov     ax,     0x36
-;     push    ax
-;     mov     ax,     minPointMsg
-;     push    ax
-
-;     call    printText
-
-;     ;Printing DEAD Point Instruction
-
-;     mov     al,14
-;     mov     bl,25
-;     call    holdMyTnt
-    
-;     mov     ax,     1Eh   ;x co-ordinate
-;     push    ax
-;     mov     ax,     0Fh   ;y co-ordinate
-;     push    ax
-;     xor     ax,     ax
-;     mov     ax,     0x34
-;     push    ax
-;     mov     ax,     pointMsg
-;     push    ax
-    
-;     call    printText
-;     mov     ax,     20h   ;x co-ordinate
-;     push    ax
-;     mov     ax,     0Fh   ;y co-ordinate
-;     push    ax
-;     xor     ax,     ax
-;     mov     ax,     0x34
-;     push    ax
-;     mov     ax,     deadMsg
-;     push    ax
-    
-;     call    printText
