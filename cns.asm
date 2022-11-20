@@ -14,6 +14,7 @@ minPointMsg:     db  '5 Points',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
+oldSegPx:     dd  0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
 text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
@@ -22,9 +23,6 @@ text5: db'/   \_ |  _ |  | |/   \_ |  |  ||__||  |  ||__|/  \ /   \_ |     ||   
 text6: db'\     ||  | |  | |\     ||  |  |    |  |  |    \    \     ||     ||  .  \|     |',0
 text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|\_||_____|',0
                                                                                         
-
-
-
 
 clearScreen:
     mov     ax,     00h   ;x co-ordinate
@@ -314,7 +312,7 @@ MainMenu:
 
     ret
 
-holdMyTnt: 
+renderMyTnt: 
 
     push    bp
     mov     bp,     sp     
@@ -841,7 +839,7 @@ InstructionsPage:
     push    ax
     mov     ax,     17
     push    ax
-    call    holdMyTnt
+    call    renderMyTnt
     mov     ax,     57   ;x co-ordinate
     push    ax
     mov     ax,     20   ;y co-ordinate
@@ -878,6 +876,30 @@ loadEndPage:
     call    clearScreen
     call    EndPage
     ret
+movPickaxe:
+    push ax
+	push es
+	mov ax, 0xb800
+	mov es, ax 
+	in al, 0x60 
+	
+    cmp al, 97
+    jne     rightKey
+    ;mov     word[es:300],   0x0720
+    jmp     endPickaxe
+    
+    rightKey:
+    cmp     al,    98
+    ;mov     word[es:186],   0x0720
+    jmp     endPickaxe
+
+  
+    endPickaxe:
+
+    pop     es
+    pop     ax
+    jmp     far[cs:oldSegPx]
+    ret
 loadGamePage:
     call    clearScreen
     call    renderScoreNTime
@@ -887,7 +909,7 @@ loadGamePage:
     push    ax
     mov     ax,     4 ; row can be randomly selected using random function
     push    ax
-    call    holdMyTnt
+    call    renderMyTnt
     
     mov     ax,     34 ; column
     push    ax 
@@ -901,13 +923,34 @@ loadGamePage:
     push    ax
     call    midPointShape
     
-    
     mov     ax,     2 ; column
     push    ax 
     mov     ax,     14 ; row can be randomly selected using random function
     push    ax
     call    minPointShape
 
+    xor     ax,     ax
+    mov     es,     ax
+    mov     ax,     [es:9*4]
+    mov     [oldSegPx], ax
+    mov     ax,     [es:9*4+2]
+    mov     [oldSegPx+2],   ax
+    CLI
+    mov     word[es:9*4],   movPickaxe
+    mov     word[es:9*4+2],   cs
+    STI
+    restorePickaxe:
+        mov     ah,     0
+        int     16h
+        cmp     al,     27 
+        jne     restorePickaxe
+
+    mov     ax,     [oldSegPx]
+    mov     bx,     [oldSegPx+2]
+    CLI
+    mov     word[es:9*4],   ax
+    mov     word[es:9*4+2],   bx
+    STI
     ret
 waitAWhile
     push    cx
@@ -925,24 +968,13 @@ waitAWhile
     pop     cx
     ret
 start:
-    call    loadMainMenu
-    call    waitAWhile
-    call    loadInstructionsPage
-    call    waitAWhile
+    ;call    loadMainMenu
+    ;call    waitAWhile
+    ;call    loadInstructionsPage
+    ;call    waitAWhile
     call    loadGamePage
-    call    waitAWhile
-    call    loadEndPage
+    ;call    waitAWhile
+    ;call    loadEndPage
     
-mov 	ax, 	0x4c00
-int 	21h
-
-
-
-
-
-
-
-
-
-
-
+    mov 	ax, 	0x4c00
+    int 	21h
