@@ -74,8 +74,16 @@ timer: push ax
 
     mov word ax, [tickcount]
     mov byte bl, 5
+    mov cx, [tickseconds]
     div bl
+
     mov [tickseconds],al
+    cmp cx,[tickseconds]
+    je dontScroll
+        mov ax,1 
+        push ax ; push number of lines to scroll 
+        call scrolldown
+    dontScroll:
     mov ax, 176
     push ax
     push word [tickseconds]
@@ -106,8 +114,41 @@ timer: push ax
         pop ax 
     iret ; return from interrupt 
   
-
-
+; subroutine to scrolls down the screen 
+; take the number of lines to scroll as parameter 
+scrolldown: push bp 
+    mov bp,sp 
+    push ax 
+    push cx 
+    push si 
+    push di 
+    push es 
+    push ds 
+    mov ax, 80 ; load chars per row in ax 
+    mul byte [bp+4] ; calculate source position 
+    push ax ; save position for later use 
+    shl ax, 1 ; convert to byte offset 
+    mov si, 3198 ; last location on the screen 
+    sub si, ax ; load source position in si 
+    mov cx, 1520 ; number of screen locations 
+    sub cx, ax ; count of words to move 
+    mov ax, 0xb800 
+    mov es, ax ; point es to video base 
+    mov ds, ax ; point ds to video base 
+    mov di, 3198 ; point di to lower right column 
+    std ; set auto decrement mode 
+    rep movsw ; scroll up 
+    mov ax, 0x0720 ; space in normal attribute 
+    pop cx ; count of positions to clear 
+    rep stosw ; clear the scrolled space 
+    pop ds 
+    pop es 
+    pop di 
+    pop si 
+    pop cx 
+    pop ax 
+    pop bp 
+    ret 2
 clearScreen:
     mov     ax,     00h   ;x co-ordinate
     push    ax
@@ -979,11 +1020,10 @@ movPickaxe:
 
   
     endPickaxe:
-
-    pop     es
-    pop     ax
-    jmp     far[cs:oldSegPx]
-    ret
+    pop es
+    pop ax
+    jmp far [cs:oldSegPx]
+    
 loadGamePage:
     call    clearScreen
     call    renderScoreNTime
@@ -1021,7 +1061,7 @@ loadGamePage:
     mov     [oldSegPx+2],   ax
     CLI
     mov     word[es:9*4],   movPickaxe
-    mov     word[es:9*4+2],   cs
+    mov     [es:9*4+2],   cs
     STI
     restorePickaxe:
         mov     ah,     0
@@ -1032,8 +1072,8 @@ loadGamePage:
     mov     ax,     [oldSegPx]
     mov     bx,     [oldSegPx+2]
     CLI
-    mov     word[es:9*4],   ax
-    mov     word[es:9*4+2],   bx
+    mov     [es:9*4],   ax
+    mov     [es:9*4+2],   bx
     STI
     ret
 waitAWhile
