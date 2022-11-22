@@ -30,7 +30,8 @@ tickseconds: dw 0
 tickmins: dw 0 
 ; subroutine to print a number at top left of screen 
 ; takes the number to be printed as its parameter 
-printnum: push bp 
+printnum: 
+    push bp 
     mov bp, sp 
     push es 
     push ax 
@@ -65,7 +66,8 @@ printnum: push bp
     pop bp 
     ret 4
 ; timer interrupt service routine 
-timer: push ax
+timer:
+    push ax
     push es
     inc word [tickcount]; increment tick count
 
@@ -116,7 +118,8 @@ timer: push ax
   
 ; subroutine to scrolls down the screen 
 ; take the number of lines to scroll as parameter 
-scrolldown: push bp 
+scrolldown: 
+    push bp 
     mov bp,sp 
     push ax 
     push cx 
@@ -1001,6 +1004,38 @@ loadEndPage:
     call    clearScreen
     call    EndPage
     ret
+scrollLeft:
+    push bp 
+    mov bp,sp 
+    push ax 
+    push cx 
+    push si 
+    push di 
+    push es 
+    push ds 
+    mov si, [bp+6] ; last location on the screen 
+    mov cx, 7 ; number of screen locations 
+    ;sub cx, ax ; count of words to move 
+    mov ax, 0xb800 
+    mov es, ax ; point es to video base 
+    mov ds, ax ; point ds to video base 
+    mov di, [bp+4] ; point di to lower right column 
+    CLI
+    rep movsw
+    ;mov ax, 0x0620 ; space in normal attribute 
+    ;mov cx, 2
+    ;rep stosw ; clear the scrolled space 
+    pop ds 
+    pop es 
+    pop di 
+    pop si 
+    pop cx 
+    pop ax 
+    pop bp 
+    ret 4
+scrollRight:
+
+    ret
 movPickaxe:
     push ax
 	push es
@@ -1008,14 +1043,33 @@ movPickaxe:
 	mov es, ax 
 	in al, 0x60 
 	
-    cmp al, 97
+    cmp     al,     75
     jne     rightKey
-    ;mov     word[es:300],   0x0720
+    mov     cx,     7
+    mov     si,     3748
+    mov     di,     3734
+    loopScrollLeft:
+        push    si
+        push    di
+        call    scrollLeft
+        sub     si,     80
+        sub     di,     80
+    loop    loopScrollLeft
     jmp     endPickaxe
     
     rightKey:
-    cmp     al,    98
-    ;mov     word[es:186],   0x0720
+    cmp     al,    77
+    jne     endPickaxe
+    mov     cx,     7
+    mov     si,     3748
+    mov     di,     3760
+    loopScrollRight:
+        push    si
+        push    di
+        call    scrollLeft
+        sub     si,     80
+        sub     di,     80
+    loop    loopScrollRight
     jmp     endPickaxe
 
   
@@ -1115,7 +1169,7 @@ start:
     ;call    waitAWhile
     ;call    loadInstructionsPage
     ;call    waitAWhile
-    call    hookTimer
+    ;call    hookTimer
     call    loadGamePage
     
     ;call    waitAWhile
