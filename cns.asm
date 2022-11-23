@@ -22,9 +22,7 @@ text4: db' /  /  |    ||_| |_/  /  |  _  ||  ||  |  ||  |\__  |/  /  |  O  ||   
 text5: db'/   \_ |  _ |  | |/   \_ |  |  ||__||  |  ||__|/  \ /   \_ |     ||    \ |   [_ ',0
 text6: db'\     ||  | |  | |\     ||  |  |    |  |  |    \    \     ||     ||  .  \|     |',0
 text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|\_||_____|',0
-
-
-
+posOfPickaxe:   dw  25h
 tickcount: dw 0 
 tickseconds: dw 0 
 tickmins: dw 0 
@@ -247,8 +245,15 @@ renderScoreNTime:
     ret
 
 renderCatcher:
+    push    bp
+    mov     bp,     sp
+
+    push    ax
+    push    bx
+    push    cx
+
     ;for printing stem of pickaxe
-    mov     ax,     25h   ;x co-ordinate
+    mov     ax,     [bp+4]   ;x co-ordinate
     push    ax
     mov     ax,     17h   ;y co-ordinate
     push    ax
@@ -262,7 +267,7 @@ renderCatcher:
     push    cx
     call    printDesignShapes
     
-    mov     ax,     25h   ;x co-ordinate
+    mov     ax,     [bp+4]   ;x co-ordinate
     push    ax
     mov     ax,     16h   ;y co-ordinate
     push    ax
@@ -276,7 +281,7 @@ renderCatcher:
     push    cx
     call    printDesignShapes
 
-    mov     ax,     25h   ;x co-ordinate
+    mov     ax,     [bp+4]   ;x co-ordinate
     push    ax
     mov     ax,     15h   ;y co-ordinate
     push    ax
@@ -290,7 +295,7 @@ renderCatcher:
     push    cx
     call    printDesignShapes
     ;for axe handle itself
-    mov     ax,     25h   ;x co-ordinate
+    mov     ax,     [bp+4]   ;x co-ordinate
     push    ax
     mov     ax,     14h   ;y co-ordinate
     push    ax
@@ -304,7 +309,9 @@ renderCatcher:
     push    cx
     call    printDesignShapes
     ;for axe itself
-    mov     ax,     22h   ;x co-ordinate
+    mov     bx,     [bp+4]
+    sub     bx,     3
+    mov     ax,     bx   ;x co-ordinate
     push    ax
     mov     ax,     14h   ;y co-ordinate
     push    ax
@@ -318,7 +325,9 @@ renderCatcher:
     push    cx
     call    printDesignShapes
 
-    mov     ax,     23h   ;x co-ordinate
+    mov     bx,     [bp+4]
+    sub     bx,     2
+    mov     ax,     bx   ;x co-ordinate
     push    ax
     mov     ax,     14h   ;y co-ordinate
     push    ax
@@ -332,7 +341,9 @@ renderCatcher:
     push    cx
     call    printDesignShapes
 
-    mov     ax,     26h   ;x co-ordinate
+    mov     bx,     [bp+4]
+    add     bx,     1
+    mov     ax,     bx   ;x co-ordinate
     push    ax
     mov     ax,     14h   ;y co-ordinate
     push    ax
@@ -346,7 +357,9 @@ renderCatcher:
     push    cx
     call    printDesignShapes
 
-    mov     ax,     28h   ;x co-ordinate
+    mov     bx,     [bp+4]
+    add     bx,     3
+    mov     ax,     bx   ;x co-ordinate
     push    ax
     mov     ax,     14h   ;y co-ordinate
     push    ax
@@ -359,7 +372,12 @@ renderCatcher:
     mov     cx,     01h
     push    cx
     call    printDesignShapes
-    ret
+
+    pop     cx
+    pop     bx
+    pop     ax
+    pop     bp
+    ret     2
 MainMenu:
     mov     ax,    0h 
     push    ax
@@ -1036,6 +1054,37 @@ scrollLeft:
 scrollRight:
 
     ret
+clearPickaxeArea:
+    push    ax
+    push    bx
+    push    cx
+    push    dx
+
+    mov     cx,     4
+    mov     bx,     17h
+    loopToClearPickaxeArea:
+
+    mov     ax,     00h   ;x co-ordinate
+    push    ax
+    mov     ax,     bx   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0xEE  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     20h
+    push    ax
+    mov     dx,     80
+    push    dx
+    call    printDesignShapes
+    sub     bx,     1
+    loop    loopToClearPickaxeArea
+
+    pop     dx
+    pop     cx
+    pop     bx
+    pop     ax
+    ret
 movPickaxe:
     push ax
 	push es
@@ -1045,31 +1094,43 @@ movPickaxe:
 	
     cmp     al,     75
     jne     rightKey
-    mov     cx,     7
-    mov     si,     3748
-    mov     di,     3734
-    loopScrollLeft:
-        push    si
-        push    di
-        call    scrollLeft
-        sub     si,     80
-        sub     di,     80
-    loop    loopScrollLeft
+    
+    call    clearPickaxeArea
+    xor     ax,     ax
+    mov     ax,     [posOfPickaxe]
+    cmp     ax,     5h
+    je      dontMovLeft
+    push    ax
+    call    renderCatcher
+    mov     ax,     [posOfPickaxe]
+    sub     ax,     2
+    mov     word[posOfPickaxe],     ax
+    jmp     backFromDontMovLeft
+    dontMovLeft:
+    push    ax
+    call    renderCatcher
+    ;jmp     backFromDontMovLeft
+    backFromDontMovLeft:
     jmp     endPickaxe
     
     rightKey:
     cmp     al,    77
     jne     endPickaxe
-    mov     cx,     7
-    mov     si,     3748
-    mov     di,     3760
-    loopScrollRight:
-        push    si
-        push    di
-        call    scrollLeft
-        sub     si,     80
-        sub     di,     80
-    loop    loopScrollRight
+    call    clearPickaxeArea
+    xor     ax,     ax
+    mov     ax,     [posOfPickaxe]
+    cmp     ax,     49h
+    je      dontMovRight
+    push    ax
+    call    renderCatcher
+    add     ax,     2
+    mov     word[posOfPickaxe],     ax
+    jmp     backFromDontMovRight
+    dontMovRight:
+    push    ax
+    call    renderCatcher
+    ;jmp     backFromDontMovRight
+    backFromDontMovRight:
     jmp     endPickaxe
 
   
@@ -1079,8 +1140,14 @@ movPickaxe:
     jmp far [cs:oldSegPx]
     
 loadGamePage:
+    push    ax
+    push    bx
+    push    es
+
     call    clearScreen
     call    renderScoreNTime
+    mov     ax,     [posOfPickaxe]
+    push    ax
     call    renderCatcher
     ; maybe a loop to call it again and again
     mov     ax,     4 ; column 
@@ -1129,6 +1196,9 @@ loadGamePage:
     mov     [es:9*4],   ax
     mov     [es:9*4+2],   bx
     STI
+    pop     es
+    pop     bx
+    pop     ax
     ret
 waitAWhile
     push    cx
@@ -1164,7 +1234,6 @@ hookTimer:
 
 
 start:
-    
     ;call    loadMainMenu
     ;call    waitAWhile
     ;call    loadInstructionsPage
