@@ -116,7 +116,8 @@ timer: push ax
   
 ; subroutine to scrolls down the screen 
 ; take the number of lines to scroll as parameter 
-scrolldown: push bp 
+scrolldown: 
+    push bp 
     mov bp,sp 
     push ax 
     push cx 
@@ -138,7 +139,7 @@ scrolldown: push bp
     mov di, 3198 ; point di to lower right column 
     std ; set auto decrement mode 
     rep movsw ; scroll up 
-    mov ax, 0x0720 ; space in normal attribute 
+    mov ax, 0x6720 ; space in normal attribute 
     pop cx ; count of positions to clear 
     rep stosw ; clear the scrolled space 
     pop ds 
