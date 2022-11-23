@@ -15,6 +15,7 @@ pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
 oldSegPx:     dd  0
+oldSegPx1:     dd  0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
 text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
@@ -71,7 +72,7 @@ timer:
 
     mov ax,0xB800
     mov es, ax
-
+    
     mov word ax, [tickcount]
     mov byte bl, 5
     mov cx, [tickseconds]
@@ -1196,6 +1197,12 @@ loadGamePage:
     mov     [es:9*4],   ax
     mov     [es:9*4+2],   bx
     STI
+    mov     ax,     [oldSegPx1]
+    mov     bx,     [oldSegPx1+2]
+    CLI
+    mov     [es:8*4],   ax
+    mov     [es:8*4+2],   bx
+    STI
     pop     es
     pop     bx
     pop     ax
@@ -1220,6 +1227,10 @@ hookTimer:
     push es
     xor ax, ax 
     mov es, ax ; point es to IVT base 
+    mov     ax,     [es:8*4]
+    mov     [oldSegPx1], ax
+    mov     ax,     [es:8*4+2]
+    mov     [oldSegPx1+2],   ax
     cli ; disable interrupts 
     mov word [es:8*4], timer; store offset at n*4 
     mov [es:8*4+2], cs ; store segment at n*4+2 
@@ -1238,7 +1249,7 @@ start:
     ;call    waitAWhile
     ;call    loadInstructionsPage
     ;call    waitAWhile
-    ;call    hookTimer
+    call    hookTimer
     call    loadGamePage
     
     ;call    waitAWhile
