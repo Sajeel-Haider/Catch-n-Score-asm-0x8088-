@@ -1,10 +1,12 @@
 [org 0x0100]
 jmp	start
+; Messages
 score:      db      'Score: ',0
 time:       db      'Time: ',0
 welcomeMess:    db  'W E L C O M E !',0
 cnsMess:    db  'C A T C H  &  C A R R Y',0
 enterMess:  db  'Press Enter to Continue',0
+newMsg: db 'Don',96,'t Let any other object hover above the pickaxe ',0
 instrucMess:    db  'I N S T R U C T I O N S',0
 endMessage:     db  'T H A N K  Y O U  F O R  P L A Y I N G!',0
 deadMsg:     db  'Y O U  D I E ',0
@@ -14,8 +16,6 @@ minPointMsg:     db  '5 Points',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
-oldSegPx:     dd  0
-oldSegPx1:     dd  0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
 text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
@@ -23,12 +23,21 @@ text4: db' /  /  |    ||_| |_/  /  |  _  ||  ||  |  ||  |\__  |/  /  |  O  ||   
 text5: db'/   \_ |  _ |  | |/   \_ |  |  ||__||  |  ||__|/  \ /   \_ |     ||    \ |   [_ ',0
 text6: db'\     ||  | |  | |\     ||  |  |    |  |  |    \    \     ||     ||  .  \|     |',0
 text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|\_||_____|',0
+;Messages
+
+;Variables
+oldSegPx:     dd  0
+oldSegPx1:     dd  0
+
 posOfPickaxe:   dw  25h
 tickcount: dw 0 
 tickseconds: dw 0 
-tickmins: dw 0 
-; subroutine to print a number at top left of screen 
-; takes the number to be printed as its parameter 
+tickmins: db 0 
+Score: dw 0
+timeOver: db 0
+;Variable
+
+
 printnum: 
     push bp 
     mov bp, sp 
@@ -100,8 +109,11 @@ timer:
     mov ax,[tickmins]
     inc ax
     mov [tickmins],ax
-
-
+    cmp byte[tickmins],10
+    jne dontIncMin
+    mov byte [timeOver],1
+    mov bp,sp
+    mov word[bp+4], timeEnded
     dontIncMin:
         mov di,174
         mov word [es:di], 0x673A
@@ -384,7 +396,7 @@ MainMenu:
     push    ax
     mov     ax,     7
     push    ax 
-    mov     ax,     8h 
+    mov     ax,     68h 
     push    ax 
     mov     ax,     text1
     push    ax 
@@ -393,7 +405,7 @@ MainMenu:
     push    ax 
     mov     ax,     8
     push    ax
-    mov     ax,     8h 
+    mov     ax,     68h 
     push    ax 
     mov     ax,     text2
     push    ax 
@@ -402,7 +414,7 @@ MainMenu:
     push    ax 
     mov     ax,     9
     push    ax
-    mov     ax,     7h 
+    mov     ax,     67h 
     push    ax 
     mov     ax,     text3
     push    ax  
@@ -411,7 +423,7 @@ MainMenu:
     push    ax 
     mov     ax,     10
     push    ax 
-    mov     ax,     7h
+    mov     ax,     67h
     push    ax 
     mov     ax,     text4
     push    ax
@@ -420,7 +432,7 @@ MainMenu:
     push    ax 
     mov     ax,     11
     push    ax 
-    mov     ax,     7h 
+    mov     ax,     67h 
     push    ax 
     mov     ax,     text5
     push    ax 
@@ -429,7 +441,7 @@ MainMenu:
     push    ax
     mov     ax,     12
     push    ax 
-    mov     ax,     7h 
+    mov     ax,     67h 
     push    ax 
     mov     ax,     text6
     push    ax 
@@ -438,11 +450,22 @@ MainMenu:
     push    ax
     mov     ax,     13
     push    ax 
-    mov     ax,     7h 
+    mov     ax,     67h 
     push    ax 
     mov     ax,     text7
     push    ax 
     call    printText 
+
+    mov     ax,     12   ;x co-ordinate
+    push    ax
+    mov     ax,     0x12   ;y co-ordinate
+    push    ax
+    mov     ax,     67h     ;color
+    push    ax
+    mov     ax,     newMsg
+    push    ax
+
+    call    printText
 
     mov     ax,     1Bh   ;x co-ordinate
     push    ax
@@ -1018,6 +1041,12 @@ loadInstructionsPage:
 loadMainMenu:
     call    clearScreen
     call    MainMenu
+    pressEnter:
+        mov ah,0
+        int 16h
+        cmp ah,28
+        jne pressEnter
+
     ret
 loadEndPage:
     call    clearScreen
@@ -1091,6 +1120,8 @@ movPickaxe:
 	push es
 	mov ax, 0xb800
 	mov es, ax 
+    cmp     word [tickmins],     2 
+    je endPickaxe
 	in al, 0x60 
 	
     cmp     al,     75
@@ -1188,21 +1219,22 @@ loadGamePage:
     restorePickaxe:
         mov     ah,     0
         int     16h
-        cmp     al,     27 
-        jne     restorePickaxe
 
-    mov     ax,     [oldSegPx]
-    mov     bx,     [oldSegPx+2]
-    CLI
-    mov     [es:9*4],   ax
-    mov     [es:9*4+2],   bx
-    STI
-    mov     ax,     [oldSegPx1]
-    mov     bx,     [oldSegPx1+2]
-    CLI
-    mov     [es:8*4],   ax
-    mov     [es:8*4+2],   bx
-    STI
+        jmp     restorePickaxe
+
+    timeEnded:
+        mov     ax,     [oldSegPx]
+        mov     bx,     [oldSegPx+2]
+        CLI
+        mov     [es:9*4],   ax
+        mov     [es:9*4+2],   bx
+        STI
+        mov     ax,     [oldSegPx1]
+        mov     bx,     [oldSegPx1+2]
+        CLI
+        mov     [es:8*4],   ax
+        mov     [es:8*4+2],   bx
+        STI
     pop     es
     pop     bx
     pop     ax
@@ -1245,15 +1277,13 @@ hookTimer:
 
 
 start:
-    ;call    loadMainMenu
-    ;call    waitAWhile
-    ;call    loadInstructionsPage
-    ;call    waitAWhile
+    call    loadMainMenu
+    call    loadInstructionsPage
+    call    waitAWhile
     call    hookTimer
     call    loadGamePage
     
-    ;call    waitAWhile
-    ;call    loadEndPage
+    call    loadEndPage
     
     mov 	ax, 	0x4c00
     int 	21h
