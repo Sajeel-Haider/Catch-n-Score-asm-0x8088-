@@ -17,6 +17,9 @@ timeLimitMsg: db 'The Time has Reached 2 min Press any key to continue ',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
+
+endMsg1: db 'The time was over',0
+endMsg2: db 'You got crashed',0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
 text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
@@ -32,18 +35,24 @@ oldSegPx1:     dd  0
 
 posOfPickaxe:   dw  25h
 tickcount: dw 0 
-tickseconds: dw 0 
+tickseconds: db 0 
 tickmins: db 0 
 Score: dw 0
 timeOver: db 0
 spawnIndex: db 0
+scrollTime: dw 2
+spawnTime: db 2
+scoreMsg: dw 0
+
 ;Variable
 
 
          ; generate a rand no using the system time
 RANDSTART:
-
-
+    push bp
+    mov bp,sp
+    push ax
+    
 
     MOV AH, 00h  ; interrupts to get system time        
     INT 1AH      ; CX:DX now hold number of clock ticks since midnight      
@@ -51,9 +60,119 @@ RANDSTART:
     xor  dx, dx
     mov  cx, [bp+4]
     div  cx       ; here dx contains the remainder of the division - from 0 to 9
-    add  dl, '0'
     add  dl, [bp+6]
-RET    
+
+    pop ax
+    pop bp
+    RET 4
+scrollAndSpawnCheck:
+    push cx
+    push dx
+    push ax
+
+
+
+    mov cx, [tickcount]
+    cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
+    jne dontScroll
+        add word [scrollTime],8
+        mov ax,[scrollTime]
+        mov dx,0
+        mov cx, 1080
+        div cx
+        mov [scrollTime],dx
+        mov ax,1 
+        push ax ; push number of lines to scroll 
+        call scrolldown
+         
+
+        ; Add your code here to compare the pickaxe above
+    dontScroll:
+    mov cl,[tickseconds]
+    cmp cl, [spawnTime]
+    jne dontSpawn
+        call spawnObject
+        add byte [spawnTime],2
+        xor ax,ax
+        mov al,[spawnTime]
+        mov ch,60
+        div ch
+        mov [spawnTime],ah
+    dontSpawn:
+
+    pop ax
+    pop dx
+    pop cx
+
+    ret
+
+spawnObject:
+    push ax
+    push cx
+    push dx
+
+
+    mov ax,0
+    push ax
+    mov ax,4
+    push ax
+    call RANDSTART
+    mov bl,dl
+    mov ax,4
+    push ax
+    mov ax,60
+    push ax
+    call RANDSTART
+    mov bh, dl
+    cmp bl,0
+    jne nextSpawn
+    xor     ax, ax
+    mov     al,     bh ; column 
+    push    ax
+    mov     ax,     4 ; row can be randomly selected using random function
+    push    ax
+    call    renderMyTnt
+    jmp finishSpawn
+    
+    nextSpawn:
+    cmp bl,1
+    jne nextSpawn1
+    xor     ax, ax
+    mov     al,     bh ; column 
+    push    ax
+    mov     ax,     4 ; row can be randomly selected using random function
+    push    ax
+    call    maxPointShape
+    jmp finishSpawn
+    
+
+    nextSpawn1:
+    cmp bl,2
+    jne nextSpawn2
+    xor     ax, ax
+    mov     al,     bh ; column 
+    push    ax
+    mov     ax,     4 ; row can be randomly selected using random function
+    push    ax
+    call    midPointShape
+    jmp finishSpawn
+    
+
+    nextSpawn2:
+    xor     ax, ax
+    mov     al,     bh ; column 
+    push    ax
+    mov     ax,     4 ; row can be randomly selected using random function
+    push    ax
+    call    minPointShape
+    
+    finishSpawn:
+     
+    pop dx
+    pop cx
+    pop ax
+
+    ret
 
 printnum: 
     push bp 
@@ -90,30 +209,28 @@ printnum:
     pop es 
     pop bp 
     ret 4
-; timer interrupt service routine 
+
+; timer interrupt service routine
+
 timer:
     push ax
     push es
     cmp byte[timeOver], 1
     je printLimitMsg
+
     inc word [tickcount]; increment tick count
 
     mov ax,0xB800
     mov es, ax
     
-    mov word ax, [tickcount]
-    mov byte bl, 1
-    mov cx, [tickseconds]
+    mov ax, [tickcount]
+    mov bl, 5
     div bl
-
-    mov [tickseconds],al
-    mov ax, [tickseconds] 
-    cmp ax, 60
+    mov byte [tickseconds],al
+    cmp byte [tickseconds], 60
     jne dontIncMin
-    mov word [tickseconds],0
-    mov ax,[tickmins]
-    inc ax
-    mov [tickmins],ax
+    mov byte [tickseconds],0
+    inc byte [tickmins]
     mov word [tickcount],0
     
     mov di,178
@@ -126,19 +243,11 @@ timer:
     mov byte [timeOver],1
     jmp printLimitMsg
     dontEnd:
-    cmp cx,[tickseconds]        ; This Code tell the speed of scroll down Which is based on per second rn 
-    je dontScroll
-        mov ax,1 
-        push ax ; push number of lines to scroll 
-        call scrolldown
-         
-
-        ; Add your code here to compare the pickaxe above
-    dontScroll:
-
     
-    
+    call scrollAndSpawnCheck
     call printTimeFormat
+    mov di,174
+    mov word [es:di], 0x673A
     
         
     jmp dontPrintLimitMsg
@@ -152,7 +261,7 @@ timer:
         mov     ax,     timeLimitMsg
         push    ax 
         call    printText 
-        mov     word [tickseconds],0
+        mov     byte [tickseconds],0
         mov     word [tickmins],2
         call printTimeFormat
     dontPrintLimitMsg:   
@@ -167,22 +276,26 @@ timer:
 
 printTimeFormat:
     push ax
+    push di
 
 
     mov ax, 176
     push ax
-    push word [tickseconds]
+    xor ax,ax
+    mov al,[tickseconds]
+    push ax
     call printnum ; print tick count
-    
-    mov di,174
-    mov word [es:di], 0x673A
-    
+
+    mov ax, 306
+    push ax
+    push word [scoreMsg]
+    call printnum
     
     mov ax, 172
     push ax
     push word [tickmins]
     call printnum ; print tick count
-
+    pop di
     pop ax
     ret
 scrolldown: 
@@ -951,6 +1064,31 @@ EndPage:
     mov     ax,     endMessage
     push    ax
     call    printText
+    cmp byte [timeOver],1
+    jne msgNo2
+    mov     ax,     30   ;x co-ordinate
+    push    ax
+    mov     ax,     10   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ax,     67h
+    push    ax
+    mov     ax,     endMsg1
+    push    ax
+    call    printText
+    jmp msgNo1
+    msgNo2:
+    mov     ax,     30   ;x co-ordinate
+    push    ax
+    mov     ax,     10   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ax,     67h
+    push    ax
+    mov     ax,     endMsg2
+    push    ax
+    call    printText
+    msgNo1:
 
     mov     ax,     20h   ;x co-ordinate
     push    ax
@@ -962,6 +1100,10 @@ EndPage:
     mov     ax,     score
     push    ax
     call    printText
+    mov ax, 2162
+    push ax
+    push word [scoreMsg]
+    call printnum
     ret
 
 InstructionsPage:
@@ -1237,30 +1379,7 @@ loadGamePage:
     mov     ax,     [posOfPickaxe]
     push    ax
     call    renderCatcher
-    ; maybe a loop to call it again and again
-    mov     ax,     4 ; column 
-    push    ax
-    mov     ax,     4 ; row can be randomly selected using random function
-    push    ax
-    call    renderMyTnt
-    
-    mov     ax,     34 ; column
-    push    ax 
-    mov     ax,     8 ; row can be randomly selected using random function
-    push    ax
-    call    maxPointShape
-
-    mov     ax,     64 ; column
-    push    ax 
-    mov     ax,     12 ; row can be randomly selected using random function
-    push    ax
-    call    midPointShape
-    
-    mov     ax,     2 ; column
-    push    ax 
-    mov     ax,     14 ; row can be randomly selected using random function
-    push    ax
-    call    minPointShape
+    call    spawnObject
 
     xor     ax,     ax
     mov     es,     ax
@@ -1331,13 +1450,15 @@ hookTimer:
 
 
 start:
-    call    loadMainMenu
-    call    loadInstructionsPage
-    call    waitAWhile
-    call    hookTimer
-    call    loadGamePage
-    
-    call    loadEndPage
+    ;heh:call timer
+    ;jmp heh
+    ;call    loadMainMenu
+    ;call    loadInstructionsPage
+    ;call    waitAWhile
+    ;call    hookTimer
+    ;call    loadGamePage
+    call spawnObject
+    ;call    loadEndPage
     
     mov 	ax, 	0x4c00
     int 	21h
