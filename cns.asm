@@ -13,6 +13,7 @@ deadMsg:     db  'Y O U  D I E ',0
 maxPointMsg:     db  '15 Points ',0
 midPointMsg:     db  '10 Points ',0
 minPointMsg:     db  '5 Points',0
+timeLimitMsg: db 'The Time has Reached 2 min Press any key to continue ',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
@@ -35,8 +36,24 @@ tickseconds: dw 0
 tickmins: db 0 
 Score: dw 0
 timeOver: db 0
+spawnIndex: db 0
 ;Variable
 
+
+         ; generate a rand no using the system time
+RANDSTART:
+
+
+
+    MOV AH, 00h  ; interrupts to get system time        
+    INT 1AH      ; CX:DX now hold number of clock ticks since midnight      
+    mov  ax, dx
+    xor  dx, dx
+    mov  cx, [bp+4]
+    div  cx       ; here dx contains the remainder of the division - from 0 to 9
+    add  dl, '0'
+    add  dl, [bp+6]
+RET    
 
 printnum: 
     push bp 
@@ -77,50 +94,68 @@ printnum:
 timer:
     push ax
     push es
+    cmp byte[timeOver], 1
+    je printLimitMsg
     inc word [tickcount]; increment tick count
 
     mov ax,0xB800
     mov es, ax
     
     mov word ax, [tickcount]
-    mov byte bl, 5
+    mov byte bl, 1
     mov cx, [tickseconds]
     div bl
 
     mov [tickseconds],al
-    cmp cx,[tickseconds]
-    je dontScroll
-        mov ax,1 
-        push ax ; push number of lines to scroll 
-        call scrolldown
-    dontScroll:
-    mov ax, 176
-    push ax
-    push word [tickseconds]
-    call printnum ; print tick count
     mov ax, [tickseconds] 
     cmp ax, 60
     jne dontIncMin
     mov word [tickseconds],0
-    
-    mov di,178
-    mov word [es:di],0x6720
-    mov word [tickcount],0
     mov ax,[tickmins]
     inc ax
     mov [tickmins],ax
-    cmp byte[tickmins],10
-    jne dontIncMin
-    mov byte [timeOver],1
-    mov bp,sp
-    mov word[bp+4], timeEnded
+    mov word [tickcount],0
+    
+    mov di,178
+    mov word [es:di],0x6720
     dontIncMin:
-        mov di,174
-        mov word [es:di], 0x673A
-        mov ax, 172
-        push ax
-        push word [tickmins]
-        call printnum ; print tick count
+
+
+    cmp byte[tickmins],2
+    jne dontEnd
+    mov byte [timeOver],1
+    jmp printLimitMsg
+    dontEnd:
+    cmp cx,[tickseconds]        ; This Code tell the speed of scroll down Which is based on per second rn 
+    je dontScroll
+        mov ax,1 
+        push ax ; push number of lines to scroll 
+        call scrolldown
+         
+
+        ; Add your code here to compare the pickaxe above
+    dontScroll:
+
+    
+    
+    call printTimeFormat
+    
+        
+    jmp dontPrintLimitMsg
+    printLimitMsg:
+        mov     ax,    13
+        push    ax
+        mov     ax,     13
+        push    ax 
+        mov     ax,     67h 
+        push    ax 
+        mov     ax,     timeLimitMsg
+        push    ax 
+        call    printText 
+        mov     word [tickseconds],0
+        mov     word [tickmins],2
+        call printTimeFormat
+    dontPrintLimitMsg:   
         mov al, 0x20 
         out 0x20, al ; end of interrupt
         pop es 
@@ -129,6 +164,27 @@ timer:
   
 ; subroutine to scrolls down the screen 
 ; take the number of lines to scroll as parameter 
+
+printTimeFormat:
+    push ax
+
+
+    mov ax, 176
+    push ax
+    push word [tickseconds]
+    call printnum ; print tick count
+    
+    mov di,174
+    mov word [es:di], 0x673A
+    
+    
+    mov ax, 172
+    push ax
+    push word [tickmins]
+    call printnum ; print tick count
+
+    pop ax
+    ret
 scrolldown: 
     push bp 
     mov bp,sp 
@@ -1219,10 +1275,8 @@ loadGamePage:
     restorePickaxe:
         mov     ah,     0
         int     16h
-
-        jmp     restorePickaxe
-
-    timeEnded:
+        cmp     byte [tickmins],2
+        jne     restorePickaxe
         mov     ax,     [oldSegPx]
         mov     bx,     [oldSegPx+2]
         CLI
