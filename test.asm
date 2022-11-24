@@ -1,4 +1,4 @@
-﻿[org 0x0100]
+[org 0x100]
 jmp	start
 score:      db      'Score: ',0
 time:       db      'Time: ',0
