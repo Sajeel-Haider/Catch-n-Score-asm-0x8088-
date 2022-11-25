@@ -32,7 +32,9 @@ text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|
 ;Variables
 oldSegPx:     dd  0
 oldSegPx1:     dd  0
-
+seed: dw 1
+seed1: dw 1
+carry: db 0
 posOfPickaxe:   dw  25h
 tickcount: dw 0 
 tickseconds: db 0 
@@ -40,31 +42,60 @@ tickmins: db 0
 Score: dw 0
 timeOver: db 0
 spawnIndex: db 0
-scrollTime: dw 2
-spawnTime: db 2
+scrollTime: dw 2        ;Starting Srcoll
+spawnTime: db 2         ;Starting Spawn
 scoreMsg: dw 0
 
 ;Variable
 
 
-         ; generate a rand no using the system time
+         ; generate a rand no using the system          ; generate a rand no using the system time
 RANDSTART:
+
     push bp
     mov bp,sp
     push ax
-    
+    push bx
 
     MOV AH, 00h  ; interrupts to get system time        
     INT 1AH      ; CX:DX now hold number of clock ticks since midnight      
-    mov  ax, dx
-    xor  dx, dx
-    mov  cx, [bp+4]
-    div  cx       ; here dx contains the remainder of the division - from 0 to 9
-    add  dl, [bp+6]
 
+    mov  ax, dx
+   
+    add al,[carry]
+    add ah,[tickcount]
+    mov bx,[bp+4]
+    cmp bx,1
+    jne nextSeed
+    mov bx,[seed1]
+    jmp endSeed
+    nextSeed:
+    mov bx,[seed]
+    endSeed:
+    mov   dx, bx
+    mov  cx, [bp+6]
+    div  cx       
+    add dl,[bp+8]
+    mov [carry],al
+    mov bx,[bp+4]
+    cmp bx,1
+    jne nextSeed1
+    mov [seed1],dx
+    jmp endSeed1
+    nextSeed1:
+    mov [seed],dx
+    mov bx,[seed]
+    cmp bx,[bp+6]
+    jb endSeed1
+    mov bx,[bp+8]
+    sub [seed],bx
+
+    endSeed1:
+
+    pop bx
     pop ax
     pop bp
-    RET 4
+    RET    6
 scrollAndSpawnCheck:
     push cx
     push dx
@@ -75,7 +106,7 @@ scrollAndSpawnCheck:
     mov cx, [tickcount]
     cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
     jne dontScroll
-        add word [scrollTime],8
+        add word [scrollTime],2; Scrolling time selection
         mov ax,[scrollTime]
         mov dx,0
         mov cx, 1080
@@ -92,7 +123,7 @@ scrollAndSpawnCheck:
     cmp cl, [spawnTime]
     jne dontSpawn
         call spawnObject
-        add byte [spawnTime],2
+        add byte [spawnTime],2;Spawning Time selection
         xor ax,ax
         mov al,[spawnTime]
         mov ch,60
@@ -116,12 +147,17 @@ spawnObject:
     push ax
     mov ax,4
     push ax
+    mov ax,1
+    push ax
     call RANDSTART
     mov bl,dl
     mov ax,4
     push ax
     mov ax,60
     push ax
+    mov ax,0
+    push ax
+
     call RANDSTART
     mov bh, dl
     cmp bl,0
@@ -132,6 +168,7 @@ spawnObject:
     mov     ax,     4 ; row can be randomly selected using random function
     push    ax
     call    renderMyTnt
+    mov byte[spawnIndex],0
     jmp finishSpawn
     
     nextSpawn:
@@ -143,6 +180,7 @@ spawnObject:
     mov     ax,     4 ; row can be randomly selected using random function
     push    ax
     call    maxPointShape
+    mov byte[spawnIndex],1
     jmp finishSpawn
     
 
@@ -155,6 +193,7 @@ spawnObject:
     mov     ax,     4 ; row can be randomly selected using random function
     push    ax
     call    midPointShape
+    mov byte[spawnIndex],2
     jmp finishSpawn
     
 
@@ -165,7 +204,7 @@ spawnObject:
     mov     ax,     4 ; row can be randomly selected using random function
     push    ax
     call    minPointShape
-    
+    mov byte[spawnIndex],3
     finishSpawn:
      
     pop dx
@@ -224,7 +263,7 @@ timer:
     mov es, ax
     
     mov ax, [tickcount]
-    mov bl, 5
+    mov bl, 18                       ; Time controller
     div bl
     mov byte [tickseconds],al
     cmp byte [tickseconds], 60
@@ -1450,15 +1489,63 @@ hookTimer:
 
 
 start:
-    ;heh:call timer
-    ;jmp heh
+    ;heh:
+;
+    ;mov ax,0
+    ;push ax
+    ;mov ax,4
+    ;push ax
+    ;mov ax,1
+    ;push ax
+    ;call RANDSTART
+    ;mov bl,dl
+    ;mov ax,4
+    ;push ax
+    ;mov ax,60
+    ;push ax
+    ;mov ax,0
+    ;push ax
+;
+    ;call RANDSTART
+    ;;call timer
+    ;;jmp heh
+    ;l9:
+    ;add word[tickcount],18
+    ;mov cx, [tickcount]
+    ;cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
+    ;jb dontScroll1
+    ;    add word [scrollTime],8; Scrolling time selection
+    ;    mov ax,[scrollTime]
+    ;    mov dx,0
+    ;    mov cx, 1080
+    ;    div cx
+    ;    mov [scrollTime],dx
+        ;mov ax,1 
+        ;push ax ; push number of lines to scroll 
+        ;call scrolldown
+     ;   dontScroll1:
+    ;    inc byte[tickseconds]
+    ;    mov cl,[tickseconds]
+    ;cmp cl, [spawnTime]
+    ;jb dontSpawn1
+    ;    ;call spawnObject
+    ;    add byte [spawnTime],2;Spawning Time selection
+    ;    xor ax,ax
+    ;    mov al,[spawnTime]
+    ;    mov ch,60
+    ;    div ch
+    ;    mov [spawnTime],ah
+    ;dontSpawn1:
+     ;  jmp l9  
+
     ;call    loadMainMenu
     ;call    loadInstructionsPage
     ;call    waitAWhile
-    ;call    hookTimer
-    ;call    loadGamePage
-    call spawnObject
+    call    hookTimer
+    call    loadGamePage
     ;call    loadEndPage
-    
+    ;heh:
+    ;call timer
+    ;jmp heh
     mov 	ax, 	0x4c00
     int 	21h
