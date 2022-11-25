@@ -1537,12 +1537,17 @@ start:
     ;    mov [spawnTime],ah
     ;dontSpawn1:
      ;  jmp l9  
+    mov ax,0xB800
+    mov es,ax
 
+    mov di,0
+    mov word[es:di],0x0720
+    mov ax,[es:di]
     ;call    loadMainMenu
     ;call    loadInstructionsPage
     ;call    waitAWhile
-    call    hookTimer
-    call    loadGamePage
+    ;call    hookTimer
+    ;call    loadGamePage
     ;call    loadEndPage
     ;heh:
     ;call timer
