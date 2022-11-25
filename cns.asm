@@ -42,7 +42,7 @@ tickmins: db 0
 Score: dw 0
 timeOver: db 0
 spawnIndex: db 0
-scrollTime: dw 2        ;Starting Srcoll
+scrollTime: dw 3        ;Starting Srcoll
 spawnTime: db 2         ;Starting Spawn
 scoreMsg: dw 0
 
@@ -123,7 +123,7 @@ scrollAndSpawnCheck:
     cmp cl, [spawnTime]
     jne dontSpawn
         call spawnObject
-        add byte [spawnTime],2;Spawning Time selection
+        add byte [spawnTime],3;Spawning Time selection
         xor ax,ax
         mov al,[spawnTime]
         mov ch,60
