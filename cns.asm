@@ -41,11 +41,13 @@ tickseconds: db 0
 tickmins: db 0 
 Score: dw 0
 timeOver: db 0
-spawnIndex: db 0
+spawnIndex: db 10
 scrollTime: dw 3        ;Starting Srcoll
 spawnTime: db 2         ;Starting Spawn
-scoreMsg: dw 0
-
+;scoreMsg: dw 0
+;tnthit
+tntHit: dw  1
+;messagetnt
 ;Variable
 
 
@@ -96,17 +98,33 @@ RANDSTART:
     pop ax
     pop bp
     RET    6
+detectComingObjLocation:
+    push    ax
+    push    bx
+    xor     ax,     ax
+
+    mov     bl,     13h
+    mov     al,     80
+    mul     bl
+    add     ax,     [posOfPickaxe]
+    shl     ax,     1
+    mov     si,     ax  
+    pop     bx
+    pop     ax
+    ret
 scrollAndSpawnCheck:
     push cx
     push dx
     push ax
-
+    push es
+    push si
 
 
     mov cx, [tickcount]
     cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
     jne dontScroll
         add word [scrollTime],2; Scrolling time selection
+
         mov ax,[scrollTime]
         mov dx,0
         mov cx, 1080
@@ -116,8 +134,35 @@ scrollAndSpawnCheck:
         push ax ; push number of lines to scroll 
         call scrolldown
          
-
+        
         ; Add your code here to compare the pickaxe above
+        ;calculate 
+        ; call    detectComingObjLocation
+        ; mov     ax,     0xb800
+        ; mov     ds,     ax
+        ; cld
+        ; lodsw
+
+        ; cmp     ax,     0xEE20
+        ; je      noObject     
+        ; cmp     word[spawnIndex],   1
+        ; jne     check2Index
+        ; add     word[Score],    15
+        ; cmp     word[spawnIndex],   2
+        ; check2Index:
+        ; add     word[Score],    10
+        ; cmp     word[spawnIndex],   3
+        ; jne     check3Index
+        ; check3Index:
+        ; add     word[Score],    5
+        ; cmp     word[spawnIndex],   0
+        ; jne     noObject
+        ; mov     word[tntHit],   0
+    
+        ; noObject:
+
+
+        ;here jump
     dontScroll:
     mov cl,[tickseconds]
     cmp cl, [spawnTime]
@@ -131,6 +176,9 @@ scrollAndSpawnCheck:
         mov [spawnTime],ah
     dontSpawn:
 
+
+    pop si
+    pop es
     pop ax
     pop dx
     pop cx
@@ -256,7 +304,22 @@ timer:
     push es
     cmp byte[timeOver], 1
     je printLimitMsg
+    
+    cmp     word[tntHit],   0
+    jne     dontCrash
+    ;print tnt hit
+    mov     ax,     28   ;x co-ordinate
+    push    ax
+    mov     ax,     2   ;y co-ordinate
+    push    ax
+    mov     ax,     0x67
+    push    ax
+    mov     ax,     endMsg2
+    push    ax
+    call    printText
+    jmp     dontPrintLimitMsg
 
+    dontCrash:
     inc word [tickcount]; increment tick count
 
     mov ax,0xB800
@@ -303,11 +366,14 @@ timer:
         mov     byte [tickseconds],0
         mov     word [tickmins],2
         call printTimeFormat
+    
     dontPrintLimitMsg:   
         mov al, 0x20 
         out 0x20, al ; end of interrupt
         pop es 
         pop ax 
+
+
     iret ; return from interrupt 
   
 ; subroutine to scrolls down the screen 
@@ -327,7 +393,7 @@ printTimeFormat:
 
     mov ax, 306
     push ax
-    push word [scoreMsg]
+    push word [Score]
     call printnum
     
     mov ax, 172
@@ -1141,7 +1207,7 @@ EndPage:
     call    printText
     mov ax, 2162
     push ax
-    push word [scoreMsg]
+    push word [Score]
     call printnum
     ret
 
@@ -1400,6 +1466,10 @@ movPickaxe:
     call    renderCatcher
     ;jmp     backFromDontMovRight
     backFromDontMovRight:
+
+
+
+
     jmp     endPickaxe
 
   
@@ -1435,6 +1505,9 @@ loadGamePage:
         int     16h
         cmp     byte [tickmins],2
         jne     restorePickaxe
+        ;tnt hit
+
+        
         mov     ax,     [oldSegPx]
         mov     bx,     [oldSegPx+2]
         CLI
@@ -1537,6 +1610,22 @@ start:
     ;    mov [spawnTime],ah
     ;dontSpawn1:
      ;  jmp l9  
+;----------------------------------------------------------------------------------------
+    ;  call clearScreen
+    ;  call    detectComingObjLocation
+
+    ;     mov     ax,     0xb800
+    ;     mov     es,     ax
+    ;     mov     ax,     word[es:di]
+        
+    ;     CLD
+    ;     stosw   
+    ;     mov     ax,     word[es:di]
+        ; call    detectComingObjLocation
+        ; mov     ax,     0xb800
+        ; mov     ds,     ax
+        ; cld
+        ; lodsw
 
     ;call    loadMainMenu
     ;call    loadInstructionsPage
@@ -1544,6 +1633,7 @@ start:
     call    hookTimer
     call    loadGamePage
     ;call    loadEndPage
+    ;-----------------------------------------------------------------------------
     ;heh:
     ;call timer
     ;jmp heh
