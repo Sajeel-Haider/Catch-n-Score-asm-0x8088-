@@ -17,12 +17,9 @@ timeLimitMsg: db 'The Time has Reached 2 min Press any key to continue ',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
-<<<<<<< HEAD
-compare: dw 0xEE20
-=======
 
 found:  db 'FOUND',0
->>>>>>> c3752b350ee3d163a8513f1e8d77dc118e4be948
+
 endMsg1: db 'The time was over',0
 endMsg2: db 'You got crashed',0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
@@ -1673,49 +1670,7 @@ start:
      ;  jmp l9  
 
 ;----------------------------------------------------------------------------------------
-<<<<<<< HEAD
-      call clearScreen
-      call    detectComingObjLocation
-         mov     ax,     0xb800
-         mov     es,     ax
-         mov di,130
-         mov word [es:di],0x5600
-         mov  al, byte [es:di]
-        mov si, compare 
-        CMPSw 
-        je  blah 
-         mov     al,     byte [es:di]
-         inc di
-         mov     ah,     byte [es:di]
-       
-         CLD
-         stosw   
-         mov     ax,     word[es:di]
-         call    detectComingObjLocation
-         mov     ax,     0xb800
-         mov     ds,     ax
-         cld
-         lodsw
-            blah:
-    
-=======
-    ;  call clearScreen
-    ;  call    detectComingObjLocation
 
-    ;     mov     ax,     0a000h 
-    ;     mov     es,     ax
-    ;     mov     ax,     word[es:di]
-        
-    ;     CLD
-    ;     stosw   
-    ;     mov     ax,     word[es:di]
-        ; call    detectComingObjLocation
-        ; mov     ax,     0xb800
-        ; mov     ds,     ax
-        ; cld
-        ; lodsw
-
->>>>>>> c3752b350ee3d163a8513f1e8d77dc118e4be948
     ;call    loadMainMenu
     ;call    loadInstructionsPage
     ;call    waitAWhile
