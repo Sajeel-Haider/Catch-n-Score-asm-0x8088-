@@ -151,6 +151,30 @@ clearGameScreen:
     
 dontScrollmid:
     jmp     dontScroll
+objectDetected:
+        cmp     byte[spawnIndex],   1
+        jne     check2Index
+        add     word[Score],    15
+        call    clearGameScreen
+        jmp     noObject
+        check2Index:
+        cmp     byte[spawnIndex],   2
+        jne     check3Index
+        add     word[Score],    10
+        call    clearGameScreen
+        jmp     noObject
+        check3Index:
+        cmp     byte[spawnIndex],   3
+        jne     check0INdex
+        add     word[Score],    5
+        call    clearGameScreen
+        jmp     noObject
+        check0INdex:
+        cmp     byte[spawnIndex],   0
+        jne     noObject
+        mov     word[tntHit],   0
+        jmp     noObject
+
 scrollAndSpawnCheck:
     push cx
     push dx
@@ -177,48 +201,29 @@ scrollAndSpawnCheck:
         ; Add your code here to compare the pickaxe above
         ;calculate 
         call    detectComingObjLocation
-        ; mov     ax,     0xb800
-        ; mov     ds,     ax
-        ; cld
-        ; lodsw
 
         mov     ax,     word[es:si]
         cmp     ax,     0x6720
-        je      noObject    
-       
-        ;mov     ax,     0Ch   ;x co-ordinate
-        ;push    ax
-        ;mov     ax,     01h   ;y co-ordinate
-        ;push    ax
-        ;xor     ax,     ax
-        ;mov     ax,     07h
-        ;push    ax
-        ;mov     ax,     time   ;points to string
-        ;push    ax
-        ;call    printText
+        jne      objectDetected  
+        sub     si,     2  
+        mov     ax,     word[es:si]
+        cmp     ax,     0x6720
+        jne      objectDetected
+        sub     si,     2  
+        mov     ax,     word[es:si]
+        cmp     ax,     0x6720
+        jne      objectDetected
+        add     si,     4
+        add     si,     2
+        mov     ax,     word[es:si]
+        cmp     ax,     0x6720
+        jne      objectDetected
+        add     si,     2
+        mov     ax,     word[es:si]
+        cmp     ax,     0x6720
+        jne      objectDetected
 
-        cmp     byte[spawnIndex],   1
-        jne     check2Index
-        add     word[Score],    15
-        call    clearGameScreen
-        jmp     noObject
-        check2Index:
-        cmp     byte[spawnIndex],   2
-        jne     check3Index
-        add     word[Score],    10
-        call    clearGameScreen
-        jmp     noObject
-        check3Index:
-        cmp     byte[spawnIndex],   3
-        jne     check0INdex
-        add     word[Score],    5
-        call    clearGameScreen
-        jmp     noObject
-        check0INdex:
-        cmp     byte[spawnIndex],   0
-        jne     noObject
-        mov     word[tntHit],   0
-        call    clearGameScreen
+
         noObject:
 
 
@@ -513,16 +518,6 @@ clearScreen:
     mov     cx,     2000
     push    cx
     call    printDesignShapes
-    ret
-blueScreen:
-    mov     ah,     00h
-    mov     al,     13h
-    int     10h
-
-    mov	ah,	06h ;video mode
-    mov	bh,	00h ;set background
-    mov	bl,	03h ;color
-    int 10h
     ret
 
 printText:
@@ -1417,35 +1412,6 @@ loadEndPage:
     call    clearScreen
     call    EndPage
     ret
-scrollLeft:
-    push bp 
-    mov bp,sp 
-    push ax 
-    push cx 
-    push si 
-    push di 
-    push es 
-    push ds 
-    mov si, [bp+6] ; last location on the screen 
-    mov cx, 7 ; number of screen locations 
-    ;sub cx, ax ; count of words to move 
-    mov ax, 0xb800 
-    mov es, ax ; point es to video base 
-    mov ds, ax ; point ds to video base 
-    mov di, [bp+4] ; point di to lower right column 
-    CLI
-    rep movsw
-    ;mov ax, 0x0620 ; space in normal attribute 
-    ;mov cx, 2
-    ;rep stosw ; clear the scrolled space 
-    pop ds 
-    pop es 
-    pop di 
-    pop si 
-    pop cx 
-    pop ax 
-    pop bp 
-    ret 4
 clearPickaxeArea:
     push    ax
     push    bx
@@ -1503,7 +1469,6 @@ movPickaxe:
     dontMovLeft:
     push    ax
     call    renderCatcher
-    ;jmp     backFromDontMovLeft
     backFromDontMovLeft:
     jmp     endPickaxe
     
@@ -1523,15 +1488,9 @@ movPickaxe:
     dontMovRight:
     push    ax
     call    renderCatcher
-    ;jmp     backFromDontMovRight
     backFromDontMovRight:
-
-
-
-
     jmp     endPickaxe
 
-  
     endPickaxe:
     pop es
     pop ax
@@ -1619,70 +1578,16 @@ hookTimer:
 
 
     ret 
+start: 
 
+    ;----------------------------------------------------------------------------------------
 
-
-start:
-    ;heh:
-;
-    ;mov ax,0
-    ;push ax
-    ;mov ax,4
-    ;push ax
-    ;mov ax,1
-    ;push ax
-    ;call RANDSTART
-    ;mov bl,dl
-    ;mov ax,4
-    ;push ax
-    ;mov ax,60
-    ;push ax
-    ;mov ax,0
-    ;push ax
-;
-    ;call RANDSTART
-    ;;call timer
-    ;;jmp heh
-    ;l9:
-    ;add word[tickcount],18
-    ;mov cx, [tickcount]
-    ;cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
-    ;jb dontScroll1
-    ;    add word [scrollTime],8; Scrolling time selection
-    ;    mov ax,[scrollTime]
-    ;    mov dx,0
-    ;    mov cx, 1080
-    ;    div cx
-    ;    mov [scrollTime],dx
-        ;mov ax,1 
-        ;push ax ; push number of lines to scroll 
-        ;call scrolldown
-     ;   dontScroll1:
-    ;    inc byte[tickseconds]
-    ;    mov cl,[tickseconds]
-    ;cmp cl, [spawnTime]
-    ;jb dontSpawn1
-    ;    ;call spawnObject
-    ;    add byte [spawnTime],2;Spawning Time selection
-    ;    xor ax,ax
-    ;    mov al,[spawnTime]
-    ;    mov ch,60
-    ;    div ch
-    ;    mov [spawnTime],ah
-    ;dontSpawn1:
-     ;  jmp l9  
-
-;----------------------------------------------------------------------------------------
-
-    ;call    loadMainMenu
-    ;call    loadInstructionsPage
-    ;call    waitAWhile
+    call    loadMainMenu
+    call    loadInstructionsPage
+    call    waitAWhile
     call    hookTimer
     call    loadGamePage
-    ;call    loadEndPage
-    ;-----------------------------------------------------------------------------
-    ;heh:
-    ;call timer
-    ;jmp heh
+    call    loadEndPage
+
     mov 	ax, 	0x4c00
     int 	21h
