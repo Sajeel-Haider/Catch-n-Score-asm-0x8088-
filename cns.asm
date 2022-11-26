@@ -18,6 +18,7 @@ pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
 
+found:  db 'FOUND',0
 endMsg1: db 'The time was over',0
 endMsg2: db 'You got crashed',0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
@@ -49,7 +50,6 @@ spawnTime: db 2         ;Starting Spawn
 tntHit: dw  1
 ;messagetnt
 ;Variable
-
 
          ; generate a rand no using the system          ; generate a rand no using the system time
 RANDSTART:
@@ -112,6 +112,40 @@ detectComingObjLocation:
     pop     bx
     pop     ax
     ret
+clearGameScreen:
+    push    ax
+    push    bx
+    push    cx
+    push    dx
+
+    mov     cx,     17
+    mov     bx,     3h
+    loopToClearGameArea:
+
+    mov     ax,     00h   ;x co-ordinate
+    push    ax
+    mov     ax,     bx   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ah,     0x67  ;color of the space
+    push    ax
+    xor     ax,     ax
+    mov     al,     20h
+    push    ax
+    mov     dx,     80
+    push    dx
+    call    printDesignShapes
+    add     bx,     1
+    loop    loopToClearGameArea
+
+    pop     dx
+    pop     cx
+    pop     bx
+    pop     ax
+    ret
+    
+dontScrollmid:
+    jmp     dontScroll
 scrollAndSpawnCheck:
     push cx
     push dx
@@ -122,7 +156,7 @@ scrollAndSpawnCheck:
 
     mov cx, [tickcount]
     cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
-    jne dontScroll
+    jne dontScrollmid
         add word [scrollTime],2; Scrolling time selection
 
         mov ax,[scrollTime]
@@ -137,29 +171,50 @@ scrollAndSpawnCheck:
         
         ; Add your code here to compare the pickaxe above
         ;calculate 
-        ; call    detectComingObjLocation
+        call    detectComingObjLocation
         ; mov     ax,     0xb800
         ; mov     ds,     ax
         ; cld
         ; lodsw
 
-        ; cmp     ax,     0xEE20
-        ; je      noObject     
-        ; cmp     word[spawnIndex],   1
-        ; jne     check2Index
-        ; add     word[Score],    15
-        ; cmp     word[spawnIndex],   2
-        ; check2Index:
-        ; add     word[Score],    10
-        ; cmp     word[spawnIndex],   3
-        ; jne     check3Index
-        ; check3Index:
-        ; add     word[Score],    5
-        ; cmp     word[spawnIndex],   0
-        ; jne     noObject
-        ; mov     word[tntHit],   0
-    
-        ; noObject:
+        mov     ax,     word[es:si]
+        cmp     ax,     0x6720
+        je      noObject    
+       
+        mov     ax,     0Ch   ;x co-ordinate
+        push    ax
+        mov     ax,     01h   ;y co-ordinate
+        push    ax
+        xor     ax,     ax
+        mov     ax,     07h
+        push    ax
+        mov     ax,     time   ;points to string
+        push    ax
+        call    printText
+
+        cmp     byte[spawnIndex],   1
+        jne     check2Index
+        add     word[Score],    15
+        call    clearGameScreen
+        jmp     noObject
+        check2Index:
+        cmp     byte[spawnIndex],   2
+        jne     check3Index
+        add     word[Score],    10
+        call    clearGameScreen
+        jmp     noObject
+        check3Index:
+        cmp     byte[spawnIndex],   3
+        jne     check0INdex
+        add     word[Score],    5
+        call    clearGameScreen
+        jmp     noObject
+        check0INdex:
+        cmp     byte[spawnIndex],   0
+        jne     noObject
+        mov     word[tntHit],   0
+        call    clearGameScreen
+        noObject:
 
 
         ;here jump
@@ -317,7 +372,7 @@ timer:
     mov     ax,     endMsg2
     push    ax
     call    printText
-    jmp     dontPrintLimitMsg
+    jmp     printLimitMsg
 
     dontCrash:
     inc word [tickcount]; increment tick count
@@ -390,12 +445,14 @@ printTimeFormat:
     mov al,[tickseconds]
     push ax
     call printnum ; print tick count
-
+    
+    xor     ax,     ax
     mov ax, 306
     push ax
     push word [Score]
     call printnum
     
+    xor     ax,     ax
     mov ax, 172
     push ax
     push word [tickmins]
@@ -443,10 +500,10 @@ clearScreen:
     mov     ax,     00h   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     ah,     0xEE  ;color of the space
+    mov     ah,     0x67  ;color of the space
     push    ax
     xor     ax,     ax
-    mov     al,     20h
+    mov     al,     0x20
     push    ax
     mov     cx,     2000
     push    cx
@@ -1402,7 +1459,7 @@ clearPickaxeArea:
     mov     ax,     bx   ;y co-ordinate
     push    ax
     xor     ax,     ax
-    mov     ah,     0xEE  ;color of the space
+    mov     ah,     0x67  ;color of the space
     push    ax
     xor     ax,     ax
     mov     al,     20h
@@ -1614,19 +1671,18 @@ start:
     ;  call clearScreen
     ;  call    detectComingObjLocation
 
-    ;     mov     ax,     0xb800
+    ;     mov     ax,     0a000h 
     ;     mov     es,     ax
     ;     mov     ax,     word[es:di]
         
     ;     CLD
     ;     stosw   
     ;     mov     ax,     word[es:di]
-        ; call    detectComingObjLocation
-        ; mov     ax,     0xb800
-        ; mov     ds,     ax
-        ; cld
-        ; lodsw
-
+    ;     call    detectComingObjLocation
+    ;     mov     ax,     0xb800
+    ;     mov     ds,     ax
+    ;     cld
+    ;     lodsw
     ;call    loadMainMenu
     ;call    loadInstructionsPage
     ;call    waitAWhile
