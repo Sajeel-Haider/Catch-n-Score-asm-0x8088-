@@ -1667,10 +1667,7 @@ start:
     ;    mov [spawnTime],ah
     ;dontSpawn1:
      ;  jmp l9  
-<<<<<<< HEAD
-    mov ax,0xB800
-    mov es,ax
-=======
+
 ;----------------------------------------------------------------------------------------
     ;  call clearScreen
     ;  call    detectComingObjLocation
@@ -1691,8 +1688,8 @@ start:
     ;call    loadMainMenu
     ;call    loadInstructionsPage
     ;call    waitAWhile
-    ;call    hookTimer
-    ;call    loadGamePage
+    call    hookTimer
+    call    loadGamePage
     ;call    loadEndPage
     ;-----------------------------------------------------------------------------
     ;heh:
