@@ -22,6 +22,7 @@ found:  db 'FOUND',0
 
 endMsg1: db 'The time was over',0
 endMsg2: db 'You got crashed',0
+endMsg3: db 'You got crashed. Press Any Key to Continue',0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
 text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
@@ -32,23 +33,26 @@ text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|
 ;Messages
 
 ;Variables
+posOfPickaxe:   dw  25h
 oldSegPx:     dd  0
+
 oldSegPx1:     dd  0
 seed: dw 1
 seed1: dw 1
 carry: db 0
-posOfPickaxe:   dw  25h
+
 tickcount: dw 0 
 tickseconds: db 0 
 tickmins: db 0 
-Score: dw 0
+
 timeOver: db 0
 spawnIndex: db 10
 scrollTime: dw 3        ;Starting Srcoll
 spawnTime: db 2         ;Starting Spawn
 ;scoreMsg: dw 0
 ;tnthit
-tntHit: dw  1
+Score: dw 0
+tntHit: db  1
 ;messagetnt
 ;Variable
 
@@ -158,7 +162,7 @@ scrollAndSpawnCheck:
     mov cx, [tickcount]
     cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
     jne dontScrollmid
-        add word [scrollTime],2; Scrolling time selection
+        add word [scrollTime],3; Scrolling time selection
 
         mov ax,[scrollTime]
         mov dx,0
@@ -182,16 +186,16 @@ scrollAndSpawnCheck:
         cmp     ax,     0x6720
         je      noObject    
        
-        mov     ax,     0Ch   ;x co-ordinate
-        push    ax
-        mov     ax,     01h   ;y co-ordinate
-        push    ax
-        xor     ax,     ax
-        mov     ax,     07h
-        push    ax
-        mov     ax,     time   ;points to string
-        push    ax
-        call    printText
+        ;mov     ax,     0Ch   ;x co-ordinate
+        ;push    ax
+        ;mov     ax,     01h   ;y co-ordinate
+        ;push    ax
+        ;xor     ax,     ax
+        ;mov     ax,     07h
+        ;push    ax
+        ;mov     ax,     time   ;points to string
+        ;push    ax
+        ;call    printText
 
         cmp     byte[spawnIndex],   1
         jne     check2Index
@@ -224,7 +228,7 @@ scrollAndSpawnCheck:
     cmp cl, [spawnTime]
     jne dontSpawn
         call spawnObject
-        add byte [spawnTime],3;Spawning Time selection
+        add byte [spawnTime],2;Spawning Time selection
         xor ax,ax
         mov al,[spawnTime]
         mov ch,60
@@ -364,16 +368,16 @@ timer:
     cmp     word[tntHit],   0
     jne     dontCrash
     ;print tnt hit
-    mov     ax,     28   ;x co-ordinate
+    mov     ax,     20   ;x co-ordinate
     push    ax
     mov     ax,     2   ;y co-ordinate
     push    ax
     mov     ax,     0x67
     push    ax
-    mov     ax,     endMsg2
+    mov     ax,     endMsg3
     push    ax
     call    printText
-    jmp     printLimitMsg
+    jmp     dontPrintLimitMsg
 
     dontCrash:
     inc word [tickcount]; increment tick count
@@ -1442,9 +1446,6 @@ scrollLeft:
     pop ax 
     pop bp 
     ret 4
-scrollRight:
-
-    ret
 clearPickaxeArea:
     push    ax
     push    bx
@@ -1562,10 +1563,12 @@ loadGamePage:
         mov     ah,     0
         int     16h
         cmp     byte [tickmins],2
-        jne     restorePickaxe
+        je     endLoop
+        cmp     byte [tntHit], 0
+        jne restorePickaxe
         ;tnt hit
 
-        
+    endLoop:
         mov     ax,     [oldSegPx]
         mov     bx,     [oldSegPx+2]
         CLI
