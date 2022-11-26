@@ -17,7 +17,7 @@ timeLimitMsg: db 'The Time has Reached 2 min Press any key to continue ',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
-
+compare: dw 0xEE20
 endMsg1: db 'The time was over',0
 endMsg2: db 'You got crashed',0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
@@ -1610,31 +1610,32 @@ start:
     ;    mov [spawnTime],ah
     ;dontSpawn1:
      ;  jmp l9  
-<<<<<<< HEAD
-    mov ax,0xB800
-    mov es,ax
-=======
+
 ;----------------------------------------------------------------------------------------
-    ;  call clearScreen
-    ;  call    detectComingObjLocation
-
-    ;     mov     ax,     0xb800
-    ;     mov     es,     ax
-    ;     mov     ax,     word[es:di]
-        
-    ;     CLD
-    ;     stosw   
-    ;     mov     ax,     word[es:di]
-        ; call    detectComingObjLocation
-        ; mov     ax,     0xb800
-        ; mov     ds,     ax
-        ; cld
-        ; lodsw
->>>>>>> 16c405d9995c65c1ec6657275b5eb3d070f543dc
-
-    mov di,0
-    mov word[es:di],0x0720
-    mov ax,[es:di]
+      call clearScreen
+      call    detectComingObjLocation
+         mov     ax,     0xb800
+         mov     es,     ax
+         mov di,130
+         mov word [es:di],0x5600
+         mov  al, byte [es:di]
+        mov si, compare 
+        CMPSw 
+        je  blah 
+         mov     al,     byte [es:di]
+         inc di
+         mov     ah,     byte [es:di]
+       
+         CLD
+         stosw   
+         mov     ax,     word[es:di]
+         call    detectComingObjLocation
+         mov     ax,     0xb800
+         mov     ds,     ax
+         cld
+         lodsw
+            blah:
+    
     ;call    loadMainMenu
     ;call    loadInstructionsPage
     ;call    waitAWhile
