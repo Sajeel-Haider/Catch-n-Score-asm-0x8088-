@@ -42,7 +42,7 @@ tickseconds: db 0
 tickmins: db 0 
 timeOver: db 0
 spawnIndex: db 10
-scrollTime: dw 3        ;Starting Srcoll
+scrollTime: dw 2        ;Starting Srcoll
 spawnTime: db 2         ;Starting Spawn
 Score: dw 0
 tntHit: db  1
@@ -179,7 +179,7 @@ scrollAndSpawnCheck:
     mov cx, [tickcount]
     cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
     jne dontScrollmid
-        add word [scrollTime],3; Scrolling time selection
+        add word [scrollTime],2; Scrolling time selection
 
         mov ax,[scrollTime]
         mov dx,0
