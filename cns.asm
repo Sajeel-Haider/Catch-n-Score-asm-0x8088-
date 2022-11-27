@@ -1,12 +1,13 @@
 [org 0x0100]
 jmp	start
+;----------------------------------------------------------------------------------------------------------------
 ; Messages
 score:      db      'Score: ',0
 time:       db      'Time: ',0
 welcomeMess:    db  'W E L C O M E !',0
 cnsMess:    db  'C A T C H  &  C A R R Y',0
 enterMess:  db  'Press Enter to Continue',0
-newMsg: db 'Don',96,'t Let any other object hover above the pickaxe ',0
+newMsg: db '       D o d g e  t h e  T N T  (ITS ALL UP TO YOU)',0
 instrucMess:    db  'I N S T R U C T I O N S',0
 endMessage:     db  'T H A N K  Y O U  F O R  P L A Y I N G!',0
 deadMsg:     db  'Y O U  D I E ',0
@@ -17,9 +18,6 @@ timeLimitMsg: db 'The Time has Reached 2 min Press any key to continue ',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
-
-found:  db 'FOUND',0
-
 endMsg1: db 'The time was over',0
 endMsg2: db 'You got crashed',0
 endMsg3: db 'You got crashed. Press Any Key to Continue',0
@@ -31,34 +29,29 @@ text5: db'/   \_ |  _ |  | |/   \_ |  |  ||__||  |  ||__|/  \ /   \_ |     ||   
 text6: db'\     ||  | |  | |\     ||  |  |    |  |  |    \    \     ||     ||  .  \|     |',0
 text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|\_||_____|',0
 ;Messages
-
+;-------------------------------------------------------------------------------------------------------------------
 ;Variables
 posOfPickaxe:   dw  25h
 oldSegPx:     dd  0
-
 oldSegPx1:     dd  0
 seed: dw 1
 seed1: dw 1
 carry: db 0
-
 tickcount: dw 0 
 tickseconds: db 0 
 tickmins: db 0 
-
 timeOver: db 0
 spawnIndex: db 10
 scrollTime: dw 3        ;Starting Srcoll
 spawnTime: db 2         ;Starting Spawn
-;scoreMsg: dw 0
-;tnthit
 Score: dw 0
 tntHit: db  1
-;messagetnt
 ;Variable
-
-         ; generate a rand no using the system          ; generate a rand no using the system time
+;---------------------------------------------------------------------------------------------------------------------
+;=====================================================================================================================
+;..................................................................................................................     
 RANDSTART:
-
+    ; generate a rand no using the system          ; generate a rand no using the system time
     push bp
     mov bp,sp
     push ax
@@ -69,7 +62,7 @@ RANDSTART:
 
     mov  ax, dx
    
-    add al,[carry]
+    add al,[carry]  ;
     add ah,[tickcount]
     mov bx,[bp+4]
     cmp bx,1
@@ -362,7 +355,7 @@ printnum:
     pop bp 
     ret 4
 
-; timer interrupt service routine
+    ; timer interrupt service routine
 
 timer:
     push ax
@@ -441,8 +434,8 @@ timer:
 
     iret ; return from interrupt 
   
-; subroutine to scrolls down the screen 
-; take the number of lines to scroll as parameter 
+    ; subroutine to scrolls down the screen 
+    ; take the number of lines to scroll as parameter 
 
 printTimeFormat:
     push ax
@@ -1458,13 +1451,13 @@ movPickaxe:
     call    clearPickaxeArea
     xor     ax,     ax
     mov     ax,     [posOfPickaxe]
+    sub     ax,     2
+    mov     word[posOfPickaxe],     ax
+    mov     ax,     [posOfPickaxe]
     cmp     ax,     5h
     je      dontMovLeft
     push    ax
     call    renderCatcher
-    mov     ax,     [posOfPickaxe]
-    sub     ax,     2
-    mov     word[posOfPickaxe],     ax
     jmp     backFromDontMovLeft
     dontMovLeft:
     push    ax
@@ -1478,12 +1471,12 @@ movPickaxe:
     call    clearPickaxeArea
     xor     ax,     ax
     mov     ax,     [posOfPickaxe]
+    add     ax,     2
+    mov     word[posOfPickaxe],     ax
     cmp     ax,     49h
     je      dontMovRight
     push    ax
     call    renderCatcher
-    add     ax,     2
-    mov     word[posOfPickaxe],     ax
     jmp     backFromDontMovRight
     dontMovRight:
     push    ax
@@ -1580,7 +1573,7 @@ hookTimer:
     ret 
 start: 
 
-    ;----------------------------------------------------------------------------------------
+    ;-----------------------------------------------------------------------------------------------------------------
 
     call    loadMainMenu
     call    loadInstructionsPage
@@ -1588,6 +1581,7 @@ start:
     call    hookTimer
     call    loadGamePage
     call    loadEndPage
-
+    
+    ;-----------------------------------------------------------------------------------------------------------------
     mov 	ax, 	0x4c00
     int 	21h
