@@ -824,73 +824,39 @@ renderMyTnt:
     mov     ax,     0xB800
     mov     es,     ax
     CLD
-    mov     cx,     15
+    mov     cx,     7
     mov     ax,     0x4020       ; just printing shape afterwards
     rep     STOSw 
-    add     di,     160
-    sub     di,     30
-    mov     cx,     15
-    mov     ax,     0x4020       ; just printing shape afterwards
-    rep     STOSw 
-    add     di,     160
-    sub     di,     30
-    mov     cx,     5
-    mov     ax,     0x7020
-    rep     STOSw 
-    mov     ax,     0x705F
-    STOSw 
-    mov     ax,     0x7020
-    STOSw 
-    mov     ax,     0x7020
-    STOSw 
     
-    mov     ax,     0x7020
-    STOSw 
-    mov     ax,     0x705F
-    STOSw 
-    mov     cx,     5
-    mov     ax,     0x7020
-    rep     STOSw 
-     
     add     di,     160
-    sub     di,     30
-    mov     cx,     5
+    sub     di,     14
+    mov     cx,     2
     mov     ax,     0x7020
-    rep     STOSw 
-    mov     ax,     0x707C
+    rep     STOSw
+	mov 	ah,		0x70 
+    mov     al,     'T'
     STOSw 
-    mov     ax,     0x707C
+    mov     al,     'N'
     STOSw 
-    mov     ax,     0x705C
+    mov     al,     'T'
     STOSw 
-    
-    mov     ax,     0x707C
-    STOSw 
-    mov     ax,     0x707C
-    STOSw 
-    mov     cx,     5
-    mov     ax,     0x7020
-    rep     STOSw 
-     
-    add     di,     160
-    sub     di,     30
-    
-    mov     cx,     15
-    mov     ax,     0x4020       ; just printing shape afterwards
-    rep     STOSw 
-    add     di,     160
-    sub     di,     30
-    mov     cx,     15
-    mov     ax,     0x4020       ; just printing shape afterwards
-    rep     STOSw 
 
+    mov     cx,     2
+    mov     ax,     0x7020
+    rep     STOSw
+	
+
+    add     di,     160
+    sub     di,     14
+    mov     cx,     7
+    mov     ax,     0x4020
+    rep     STOSw 
     pop     cx
     pop     es
     pop     di
     pop     bp
 
     ret     4
-
 maxPointShape:
     
 
@@ -910,57 +876,40 @@ maxPointShape:
     mov     ax,     0xB800
     mov     es,     ax
     CLD
-    mov     cx,     6
+    mov     cx,     3
     mov     ax,     0x0020
     rep     STOSW   
     add     di,     160
-    sub     di,     14
+    sub     di,     8
     STOSW   
     mov     ax,     0x3020
-    mov     cx,     6
+    mov     cx,     3
     rep     STOSW
     mov     ax,     0x0020
     STOSW
-    add     di,     160
-    sub     di,     18
     
-    STOSW   
-    mov     ax,     0x3020
-    mov     cx,     8
-    
-    rep     STOSw
-    mov     ax,     0x0020
-    STOSW
     add     di,     160
-    sub     di,     22
-    mov     cx,     3
-    l1: 
+    sub     di,     12
+    mov     cx,     2
+    l2: 
         STOSW   
         mov     ax,     0x3020
         push    cx
-        mov     cx,     10
+        mov     cx,     5
         
         rep     STOSw
         pop     cx
         mov     ax,     0x0020
         STOSW
         add     di,     160
-        sub     di,     24
-        loop    l1
+        sub     di,     14
+        loop    l2
 
     add     di,     2
-    STOSW   
-    mov     ax,     0x3020
-    mov     cx,     8
-    
-    rep     STOSw
+    mov 	cx,		5
     mov     ax,     0x0020
-    STOSW
-    add     di,     160
-    sub     di,     18
-    mov     cx,     8
-    rep     STOSW
-
+    rep STOSW
+    
 
     pop     cx
     pop     es
@@ -968,6 +917,7 @@ maxPointShape:
     pop     bp
 
     ret     4
+
 
 
 midPointShape:
@@ -989,57 +939,40 @@ midPointShape:
     mov     ax,     0xB800
     mov     es,     ax
     CLD
-    mov     cx,     6
+    mov     cx,     3
     mov     ax,     0x0020
     rep     STOSW   
     add     di,     160
-    sub     di,     14
+    sub     di,     8
     STOSW   
     mov     ax,     0x2020
-    mov     cx,     6
+    mov     cx,     3
     rep     STOSW
     mov     ax,     0x0020
     STOSW
-    add     di,     160
-    sub     di,     18
     
-    STOSW   
-    mov     ax,     0x2020
-    mov     cx,     8
-    
-    rep     STOSw
-    mov     ax,     0x0020
-    STOSW
     add     di,     160
-    sub     di,     22
-    mov     cx,     3
-    l2: 
+    sub     di,     12
+    mov     cx,     2
+    l3: 
         STOSW   
         mov     ax,     0x2020
         push    cx
-        mov     cx,     10
+        mov     cx,     5
         
         rep     STOSw
         pop     cx
         mov     ax,     0x0020
         STOSW
         add     di,     160
-        sub     di,     24
-        loop    l2
+        sub     di,     14
+        loop    l3
 
     add     di,     2
-    STOSW   
-    mov     ax,     0x2020
-    mov     cx,     8
-    
-    rep     STOSw
+    mov 	cx,		5
     mov     ax,     0x0020
-    STOSW
-    add     di,     160
-    sub     di,     18
-    mov     cx,     8
-    rep     STOSW
-
+    rep STOSW
+    
 
     pop     cx
     pop     es
@@ -1068,82 +1001,45 @@ minPointShape:
     mov     ax,     0xB800
     mov     es,     ax
     CLD
-    mov     cx,     6
+    mov     cx,     2
     mov     ax,     0x0020
-    rep     STOSW   
-    add     di,     160
-    sub     di,     14
+    rep     STOSW
+	add 	di,		2
+	mov     cx,		2
+	rep     STOSW
+	add     di,     160
+    sub     di,     12
+	
     STOSW   
-    mov     ax,     0x5020  ;Change these ones 
+	mov 	ax,		0x4020
+	mov		cx,		2
+	rep     STOSW
+	mov     ax,		0x0020
+	STOSW
+	mov 	ax,		0x4020
+	mov		cx,		2
+	rep     STOSW
+	mov 	ax,		0x0020
+	STOSW
     
-    mov     cx,     6
-    rep     STOSW
-    mov     ax,     0x0020
-    STOSW
-    add     di,     160
-    sub     di,     16
-
-    STOSW   
-    mov     ax,     0x5020
-    STOSW
-    mov     cx,     4
-    mov     ax,     0x8020
-    rep     STOSW
-    mov     ax,     0x5020
-    STOSW
-    mov     ax,     0x0020
-    STOSW
-    add     di,     160
-    sub     di,     16
-    STOSW   
-    mov     ax,     0x5020
-    STOSW
-    mov     ax,     0x8020
-    STOSW
-    mov     ax,     0x5020
-    STOSW
-    STOSW
-    mov     ax,     0x8020
-    STOSW
-    mov     ax,     0x5020
-    STOSW
-    mov     ax,     0x0020
-    STOSW
-
-    add     di,     160
-    sub     di,     16
-
-    STOSW   
-    mov     ax,     0x5020
-    STOSW
-    mov     cx,     4
-    mov     ax,     0x8020
-    rep     STOSW
-    mov     ax,     0x5020
-    STOSW
-    mov     ax,     0x0020
-    STOSW
-
-    
-
-    add     di,     160
-    sub     di,     16
-    STOSW   
-    mov     ax,     0x5020
-    mov     cx,     6
-    rep     STOSW
-    mov     ax,     0x0020
-    STOSW
-
-    add     di,     160
+	add     di,     160
     sub     di,     14
 
-    mov     cx,     6
-    mov     ax,     0x0020
-    rep     STOSW   
-    
-     
-  
+	STOSW
+	mov 	cx,		5
+	mov 	ax,		0x4020
+	rep 	STOSW
+	mov 	ax,		0x0020
+	STOSW
+	add		di,		160
+	sub  	di,		12
+	
+	STOSW
+	mov 	cx,		4
+	mov 	ax,		0x4020
+	
+	mov 	ax,		0x0020
+    rep     STOSW
     
 
     pop     cx
@@ -1152,7 +1048,6 @@ minPointShape:
     pop     bp
 
     ret     4
-
     
 
     
@@ -1275,9 +1170,9 @@ InstructionsPage:
     call    printText
   
     ;Printing MAX Point Instruction
-    mov     ax,     8
+    mov     ax,     11
     push    ax
-    mov     ax,     6
+    mov     ax,     8
     push    ax
     call    maxPointShape
   
@@ -1304,9 +1199,9 @@ InstructionsPage:
     push    ax
     call    printText
     ;Printing MID Point Instruction
-    mov     ax,     8
+    mov     ax,     11
     push    ax
-    mov     ax,     16
+    mov     ax,     18
     push    ax
     call    midPointShape
     mov     ax,     19   ;x co-ordinate
@@ -1329,9 +1224,9 @@ InstructionsPage:
     push    ax
     call    printText
     ;Printing MIN Point Instruction
-    mov     ax,     48
+    mov     ax,     49
     push    ax
-    mov     ax,     6
+    mov     ax,     9
     push    ax
     call    minPointShape
   
@@ -1358,9 +1253,9 @@ InstructionsPage:
     push    ax
     call    printText
     ;Printing DEAD Point Instruction
-    mov     ax,     40
+    mov     ax,     47
     push    ax
-    mov     ax,     17
+    mov     ax,     19
     push    ax
     call    renderMyTnt
     mov     ax,     57   ;x co-ordinate
