@@ -10,6 +10,9 @@ enterMess:  db  'Press Enter to Continue',0
 newMsg: db '       D o d g e  t h e  T N T  (ITS ALL UP TO YOU)',0
 instrucMess:    db  'I N S T R U C T I O N S',0
 endMessage:     db  'T H A N K  Y O U  F O R  P L A Y I N G!',0
+point5Message:  db  'Number of 5 Points Catched ',0
+point10Message:  db  'Number of 10 Points Catched ',0
+point15Message:  db  'Number of 15 Points Catched ',0
 deadMsg:     db  'Y O U  D I E ',0
 maxPointMsg:     db  '15 Points ',0
 midPointMsg:     db  '10 Points ',0
@@ -38,6 +41,9 @@ oldSegPx1:     dd  0
 seed: dw 1
 seed1: dw 1
 carry: db 0
+noOf5p: dw  0
+noOf15p: dw  0
+noOf10p: dw  0
 scrollTime: dw 4        ;Starting Srcoll
 tickcount: dw 0 
 tickseconds: db 0 
@@ -154,12 +160,14 @@ objectDetected:
         cmp     byte[spawnIndex+2],   1
         jne     check2Index
         add     word[Score],    15
+        add     word[noOf15p],  1
         call    clearGameScreen
         jmp     shortJmp
         check2Index:
         cmp     byte[spawnIndex+2],   2
         jne     check3Index
         add     word[Score],    10
+        add     word[noOf10p],  1
         call    clearGameScreen
         
         jmp     shortJmp
@@ -167,6 +175,7 @@ objectDetected:
         cmp     byte[spawnIndex+2],   3
         jne     check0INdex
         add     word[Score],    5
+        add     word[noOf5p],  1
         call    clearGameScreen
         jmp     shortJmp
         check0INdex:
@@ -1183,6 +1192,56 @@ EndPage:
     call printnum
     ret
 
+printNoOfPointsHit:
+    mov     ax,     10h   ;x co-ordinate
+    push    ax
+    mov     ax,     11h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ax,     64h
+    push    ax
+    mov     ax,     point5Message
+    push    ax
+    call    printText
+
+    mov     ax,     10h   ;x co-ordinate
+    push    ax
+    mov     ax,     13h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ax,     63h
+    push    ax
+    mov     ax,     point10Message
+    push    ax
+    call    printText
+
+    mov     ax,     10h   ;x co-ordinate
+    push    ax
+    mov     ax,     15h   ;y co-ordinate
+    push    ax
+    xor     ax,     ax
+    mov     ax,     62h
+    push    ax
+    mov     ax,     point15Message
+    push    ax
+    call    printText
+
+    mov ax, 2818
+    push ax
+    push word [noOf5p]
+    call printnum
+
+    mov ax, 3138
+    push ax
+    push word [noOf10p]
+    call printnum
+
+    mov ax, 3458
+    push ax
+    push word [noOf15p]
+    call printnum
+
+    ret
 InstructionsPage:
     
     mov     ax,     28   ;x co-ordinate
@@ -1314,6 +1373,9 @@ loadInstructionsPage:
     ret
 
 loadMainMenu:
+    mov     word[noOf10p],0
+    mov     word[noOf5p],0
+    mov     word[noOf15p],0
     call    clearScreen
     call    MainMenu
     pressEnter:
@@ -1326,6 +1388,7 @@ loadMainMenu:
 loadEndPage:
     call    clearScreen
     call    EndPage
+    call    printNoOfPointsHit
     ret
 clearPickaxeArea:
     push    ax
@@ -1373,11 +1436,14 @@ movPickaxe:
     call    clearPickaxeArea
     xor     ax,     ax
     mov     ax,     [posOfPickaxe]
+    
+    cmp     ax,     5h
+    je      dontMovLeft
+
     sub     ax,     2
     mov     word[posOfPickaxe],     ax
     mov     ax,     [posOfPickaxe]
-    cmp     ax,     5h
-    je      dontMovLeft
+    
     push    ax
     call    renderCatcher
     jmp     backFromDontMovLeft
@@ -1393,10 +1459,13 @@ movPickaxe:
     call    clearPickaxeArea
     xor     ax,     ax
     mov     ax,     [posOfPickaxe]
-    add     ax,     2
-    mov     word[posOfPickaxe],     ax
+
     cmp     ax,     49h
     je      dontMovRight
+
+    add     ax,     2
+    mov     word[posOfPickaxe],     ax
+    
     push    ax
     call    renderCatcher
     jmp     backFromDontMovRight
@@ -1499,15 +1568,12 @@ start:
 
     ;-----------------------------------------------------------------------------------------------------------------
     
-    ;heh:
-    ;call timer
-    ;jmp heh
-    ;call    loadMainMenu
-    ;call    loadInstructionsPage
-    ;call    waitAWhile
+    call    loadMainMenu
+    call    loadInstructionsPage
+    call    waitAWhile
     call    hookTimer
     call    loadGamePage
-    ;call    loadEndPage
+    call    loadEndPage
     
     ;-----------------------------------------------------------------------------------------------------------------
     mov 	ax, 	0x4c00
