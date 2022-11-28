@@ -17,13 +17,13 @@ deadMsg:     db  'Y O U  D I E ',0
 maxPointMsg:     db  '15 Points ',0
 midPointMsg:     db  '10 Points ',0
 minPointMsg:     db  '5 Points',0
-timeLimitMsg: db 'The Time has Reached 2 min Press any key to continue ',0
+timeLimitMsg: db 'The Time has Reached 2 min Press Enter key to continue ',0
 pointMsg:     db  '>',0
 tnt1: db '_   _',0
 tnt2: db '||\||',0
 endMsg1: db 'The time was over',0
 endMsg2: db 'You got crashed',0
-endMsg3: db 'You got crashed. Press Any Key to Continue',0
+endMsg3: db 'You got crashed. Press Enter Key to Continue',0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
 text2: db'   /  ] /   ||     | /  ]|  |  |    |    \     / ___/  /  ] /   \ |    \   /  _]',0
 text3: db'  /  / |  o ||     |/  / |  |  | __ |  _  | __(   \_  /  / |     ||  D  ) /  [_ ',0
@@ -1070,10 +1070,7 @@ minPointShape:
 	add		di,		160
 	sub  	di,		12
 	
-	STOSW
-	mov 	cx,		4
-	mov 	ax,		0x4020
-	
+	mov 	cx,		5
 	mov 	ax,		0x002D
     rep     STOSW
     
@@ -1505,8 +1502,7 @@ loadGamePage:
     mov     [es:9*4+2],   cs
     STI
     restorePickaxe:
-        mov     ah,     0
-        int     16h
+        
         cmp     byte [tickmins],2
         je     endLoop
         cmp     byte [tntHit], 0
@@ -1514,6 +1510,14 @@ loadGamePage:
         ;tnt hit
 
     endLoop:
+        enterLoop:
+            mov ah,0
+            int 16h
+            cmp ah,28
+
+            jne enterLoop
+
+        
         mov     ax,     [oldSegPx]
         mov     bx,     [oldSegPx+2]
         CLI
@@ -1526,6 +1530,7 @@ loadGamePage:
         mov     [es:8*4],   ax
         mov     [es:8*4+2],   bx
         STI
+        
     pop     es
     pop     bx
     pop     ax
