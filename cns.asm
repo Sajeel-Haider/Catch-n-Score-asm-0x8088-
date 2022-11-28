@@ -31,21 +31,23 @@ text7: db' \____||__|_|  |_| \____||__|__|    |__|__|     \___|\____| \___/ |__|
 ;Messages
 ;-------------------------------------------------------------------------------------------------------------------
 ;Variables
+
 posOfPickaxe:   dw  25h
 oldSegPx:     dd  0
 oldSegPx1:     dd  0
 seed: dw 1
 seed1: dw 1
 carry: db 0
+scrollTime: dw 4        ;Starting Srcoll
 tickcount: dw 0 
 tickseconds: db 0 
 tickmins: db 0 
 timeOver: db 0
-spawnIndex: db 10
-scrollTime: dw 2        ;Starting Srcoll
-spawnTime: db 2         ;Starting Spawn
+
+spawnTime: dw 21         ;Starting Spawn
 Score: dw 0
 tntHit: db  1
+
 ;Variable
 ;---------------------------------------------------------------------------------------------------------------------
 ;=====================================================================================================================
@@ -116,8 +118,8 @@ clearGameScreen:
     push    cx
     push    dx
 
-    mov     cx,     17
-    mov     bx,     3h
+    mov     cx,     4
+    mov     bx,     16
     loopToClearGameArea:
 
     mov     ax,     00h   ;x co-ordinate
@@ -145,28 +147,40 @@ clearGameScreen:
 dontScrollmid:
     jmp     dontScroll
 objectDetected:
-        cmp     byte[spawnIndex],   1
+
+      
+        cmp     word[es:si],0x002D
+        jne     check0INdex
+        cmp     byte[spawnIndex+2],   1
         jne     check2Index
         add     word[Score],    15
         call    clearGameScreen
-        jmp     noObject
+        jmp     shortJmp
         check2Index:
-        cmp     byte[spawnIndex],   2
+        cmp     byte[spawnIndex+2],   2
         jne     check3Index
         add     word[Score],    10
         call    clearGameScreen
-        jmp     noObject
+        
+        jmp     shortJmp
         check3Index:
-        cmp     byte[spawnIndex],   3
+        cmp     byte[spawnIndex+2],   3
         jne     check0INdex
         add     word[Score],    5
         call    clearGameScreen
-        jmp     noObject
+        jmp     shortJmp
         check0INdex:
-        cmp     byte[spawnIndex],   0
-        jne     noObject
+        cmp     word[es:si], 0x442D
+        jne     notTnt
+        cmp     byte[spawnIndex+2],   0
+        jne     shortJmp
         mov     word[tntHit],   0
-        jmp     noObject
+        notTnt:
+        jmp     shortJmp
+
+
+        shortJmp: 
+            jmp noObject
 
 scrollAndSpawnCheck:
     push cx
@@ -175,19 +189,17 @@ scrollAndSpawnCheck:
     push es
     push si
 
-
     mov cx, [tickcount]
     cmp cx,[scrollTime]        ; This Code tell the speed of scroll down Which is based on per second rn 
     jne dontScrollmid
-        add word [scrollTime],2; Scrolling time selection
+        add word [scrollTime],4; Scrolling time selection
 
         mov ax,[scrollTime]
         mov dx,0
         mov cx, 1080
         div cx
         mov [scrollTime],dx
-        mov ax,1 
-        push ax ; push number of lines to scroll 
+        push 1
         call scrolldown
          
         
@@ -197,41 +209,55 @@ scrollAndSpawnCheck:
 
         mov     ax,     word[es:si]
         cmp     ax,     0x6720
+        
         jne      objectDetected  
         sub     si,     2  
         mov     ax,     word[es:si]
         cmp     ax,     0x6720
+        
         jne      objectDetected
         sub     si,     2  
         mov     ax,     word[es:si]
         cmp     ax,     0x6720
+        
         jne      objectDetected
-        add     si,     4
+        sub     si,     2  
+        mov     ax,     word[es:si]
+        cmp     ax,     0x6720
+        
+        jne      objectDetected
+        add     si,     8
+        mov     ax,     word[es:si]
+        cmp     ax,     0x6720
+        
+        jne      objectDetected
         add     si,     2
         mov     ax,     word[es:si]
         cmp     ax,     0x6720
+        
         jne      objectDetected
         add     si,     2
         mov     ax,     word[es:si]
         cmp     ax,     0x6720
+        
         jne      objectDetected
-
+        
 
         noObject:
 
 
         ;here jump
     dontScroll:
-    mov cl,[tickseconds]
-    cmp cl, [spawnTime]
+    mov cx,[tickcount]
+    cmp cx, [spawnTime]
     jne dontSpawn
         call spawnObject
-        add byte [spawnTime],2;Spawning Time selection
-        xor ax,ax
-        mov al,[spawnTime]
-        mov ch,60
-        div ch
-        mov [spawnTime],ah
+        add word [spawnTime],21;Spawning Time selection
+        xor dx,dx
+        mov ax,[spawnTime]
+        mov cx,1080
+        div cx
+        mov [spawnTime],dx
     dontSpawn:
 
 
@@ -266,6 +292,13 @@ spawnObject:
 
     call RANDSTART
     mov bh, dl
+    mov ax,[spawnIndex+1]
+    mov [spawnIndex+2],ax
+    mov ax, [spawnIndex]
+    mov [spawnIndex+1],ax
+    mov [spawnIndex],bl
+
+
     cmp bl,0
     jne nextSpawn
     xor     ax, ax
@@ -302,7 +335,7 @@ spawnObject:
     mov byte[spawnIndex],2
     jmp finishSpawn
     
-
+    
     nextSpawn2:
     xor     ax, ax
     mov     al,     bh ; column 
@@ -849,7 +882,7 @@ renderMyTnt:
     add     di,     160
     sub     di,     14
     mov     cx,     7
-    mov     ax,     0x4020
+    mov     ax,     0x442D
     rep     STOSw 
     pop     cx
     pop     es
@@ -890,24 +923,20 @@ maxPointShape:
     
     add     di,     160
     sub     di,     12
-    mov     cx,     2
-    l2: 
-        STOSW   
-        mov     ax,     0x3020
-        push    cx
-        mov     cx,     5
-        
-        rep     STOSw
-        pop     cx
-        mov     ax,     0x0020
-        STOSW
-        add     di,     160
-        sub     di,     14
-        loop    l2
-
-    add     di,     2
-    mov 	cx,		5
+    
+    STOSW   
+    mov     ax,     0x3020
+    push    cx
+    mov     cx,     5
+    
+    rep     STOSw
+    pop     cx
     mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     12
+    mov 	cx,		5
+    mov     ax,     0x002D
     rep STOSW
     
 
@@ -953,24 +982,22 @@ midPointShape:
     
     add     di,     160
     sub     di,     12
-    mov     cx,     2
-    l3: 
-        STOSW   
-        mov     ax,     0x2020
-        push    cx
-        mov     cx,     5
-        
-        rep     STOSw
-        pop     cx
-        mov     ax,     0x0020
-        STOSW
-        add     di,     160
-        sub     di,     14
-        loop    l3
-
-    add     di,     2
-    mov 	cx,		5
+    
+     
+    STOSW   
+    mov     ax,     0x2020
+    push    cx
+    mov     cx,     5
+    
+    rep     STOSw
+    pop     cx
     mov     ax,     0x0020
+    STOSW
+    add     di,     160
+    sub     di,     12
+
+    mov 	cx,		5
+    mov     ax,     0x002D
     rep STOSW
     
 
@@ -1038,7 +1065,7 @@ minPointShape:
 	mov 	cx,		4
 	mov 	ax,		0x4020
 	
-	mov 	ax,		0x0020
+	mov 	ax,		0x002D
     rep     STOSW
     
 
@@ -1226,7 +1253,7 @@ InstructionsPage:
     ;Printing MIN Point Instruction
     mov     ax,     49
     push    ax
-    mov     ax,     9
+    mov     ax,     8
     push    ax
     call    minPointShape
   
@@ -1379,7 +1406,9 @@ movPickaxe:
     backFromDontMovRight:
     jmp     endPickaxe
 
+
     endPickaxe:
+    
     pop es
     pop ax
     jmp far [cs:oldSegPx]
@@ -1469,14 +1498,20 @@ hookTimer:
 start: 
 
     ;-----------------------------------------------------------------------------------------------------------------
-
-    call    loadMainMenu
-    call    loadInstructionsPage
-    call    waitAWhile
+    
+    ;heh:
+    ;call timer
+    ;jmp heh
+    ;call    loadMainMenu
+    ;call    loadInstructionsPage
+    ;call    waitAWhile
     call    hookTimer
     call    loadGamePage
-    call    loadEndPage
+    ;call    loadEndPage
     
     ;-----------------------------------------------------------------------------------------------------------------
     mov 	ax, 	0x4c00
     int 	21h
+
+
+spawnIndex: db 10,10,10
