@@ -19,9 +19,7 @@ midPointMsg:     db  '10 Points ',0
 minPointMsg:     db  '5 Points',0
 timeLimitMsg: db 'The Time has Reached 2 min Press Enter key to continue ',0
 pointMsg:     db  '>',0
-tnt1: db '_   _',0
-tnt2: db '||\||',0
-endMsg1: db 'The time was over',0
+endMsg1: db 'The time is over',0
 endMsg2: db 'You got crashed',0
 endMsg3: db 'You got crashed. Press Enter Key to Continue',0
 text1: db'    __   ___  _____   __  __ __      ____       _____   __   ___   ____     ___ ',0
@@ -45,7 +43,7 @@ noOf5p: dw  0
 noOf15p: dw  0
 noOf10p: dw  0
 scrollTime: dw 4        ;Starting Srcoll
-tickcount: dw 0 
+tickcount: dw 0
 tickseconds: db 0 
 tickmins: db 0 
 timeOver: db 0
@@ -292,9 +290,9 @@ spawnObject:
     push ax
     call RANDSTART
     mov bl,dl
-    mov ax,4
+    mov ax,2
     push ax
-    mov ax,60
+    mov ax,72
     push ax
     mov ax,0
     push ax
@@ -408,15 +406,7 @@ timer:
     cmp     word[tntHit],   0
     jne     dontCrash
     ;print tnt hit
-    mov     ax,     20   ;x co-ordinate
-    push    ax
-    mov     ax,     2   ;y co-ordinate
-    push    ax
-    mov     ax,     0x67
-    push    ax
-    mov     ax,     endMsg3
-    push    ax
-    call    printText
+    
     jmp     dontPrintLimitMsg
 
     dontCrash:
@@ -442,7 +432,7 @@ timer:
 
     cmp byte[tickmins],2
     jne dontEnd
-    mov byte [timeOver],1
+    
     jmp printLimitMsg
     dontEnd:
     
@@ -454,19 +444,7 @@ timer:
         
     jmp dontPrintLimitMsg
     printLimitMsg:
-        mov     ax,    13
-        push    ax
-        mov     ax,     13
-        push    ax 
-        mov     ax,     67h 
-        push    ax 
-        mov     ax,     timeLimitMsg
-        push    ax 
-        call    printText 
-        mov     byte [tickseconds],0
-        mov     word [tickmins],2
-        call printTimeFormat
-    
+        mov     byte [timeOver],1
     dontPrintLimitMsg:   
         mov al, 0x20 
         out 0x20, al ; end of interrupt
@@ -1161,6 +1139,8 @@ EndPage:
     call    printText
     jmp msgNo1
     msgNo2:
+    cmp byte [tntHit],0
+    jne     msgNo1
     mov     ax,     30   ;x co-ordinate
     push    ax
     mov     ax,     10   ;y co-ordinate
@@ -1503,33 +1483,28 @@ loadGamePage:
     STI
     restorePickaxe:
         
-        cmp     byte [tickmins],2
+        cmp     byte [timeOver],1
         je     endLoop
         cmp     byte [tntHit], 0
         jne restorePickaxe
         ;tnt hit
 
     endLoop:
-        enterLoop:
-            mov ah,0
-            int 16h
-            cmp ah,28
 
-            jne enterLoop
-
-        
         mov     ax,     [oldSegPx]
         mov     bx,     [oldSegPx+2]
-        CLI
+        CLI 
         mov     [es:9*4],   ax
         mov     [es:9*4+2],   bx
-        STI
+        STI 
+        
         mov     ax,     [oldSegPx1]
         mov     bx,     [oldSegPx1+2]
         CLI
         mov     [es:8*4],   ax
         mov     [es:8*4+2],   bx
         STI
+        
         
     pop     es
     pop     bx
